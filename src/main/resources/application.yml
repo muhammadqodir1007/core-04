@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cloud_gantt
+    username: postgres
+    password: 1007
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+
+
+

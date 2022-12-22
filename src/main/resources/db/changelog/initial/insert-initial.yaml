@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: travel
+      author: postgres
+#      runAlways: true
+      comment: "Create initial travel"
+      changes:
+        - insert:
+            tableName: travel
+            columns:
+              - column:
+                  name: date
+                  value: "2022-10-18"
+              - column:
+                  name: register_number
+                  value: "01A777AA"
+              - column:
+                  name: car_owner_name
+                  value: "Ketmonov Bolta"
+              - column:
+                  name: odometer_begin
+                  value: "0"
+              - column:
+                  name: odometer_end
+                  value: "150"
+              - column:
+                  name: route
+                  value: "Toshkent-Sirdaryo"
+              - column:
+                  name: description
+                  value: "Mebel olib kelish"
+        - insert:
+            tableName: travel
+            columns:
+              - column:
+                  name: date
+                  value: "2021-09-15"
+              - column:
+                  name: register_number
+                  value: "01A666AA"
+              - column:
+                  name: car_owner_name
+                  value: "Uroqov Ketmon"
+              - column:
+                  name: odometer_begin
+                  value: "200"
+              - column:
+                  name: odometer_end
+                  value: "390"
+              - column:
+                  name: route
+                  value: "Toshkent-Jizzax"
+              - column:
+                  name: description
+                  value: "Notebook olib kelish"

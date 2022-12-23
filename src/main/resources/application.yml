@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/cloud_gantt
     username: postgres
-    password: 1007
+    password: root123
   jpa:
     hibernate:
       ddl-auto: create

@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/v1/auth/sign-in
+Content-Type: application/json
+
+{
+  "email": "bla@mail.ru",
+  "password": "Test_204bdeea3cd9",
+  "prePassword": "Test_204bdeea3cd9"
+}

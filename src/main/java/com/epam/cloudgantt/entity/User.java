@@ -5,11 +5,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
 @Table(name = "users")
 @Getter
-public class User extends AbsUUIDEntity {
+public class User extends AbsUUIDEntity implements UserDetails {
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -18,4 +23,22 @@ public class User extends AbsUUIDEntity {
     private String password;
 
     private String verificationCode;
+
+    private boolean enabled;
+
+    private boolean accountNonExpired;
+
+    private boolean accountNonLocked;
+
+    private boolean credentialsNonExpired;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 }

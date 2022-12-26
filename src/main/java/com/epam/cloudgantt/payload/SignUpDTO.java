@@ -6,12 +6,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
+import java.util.regex.Matcher;
+
 @Getter
 public class SignUpDTO {
 
     @NotBlank(message = "{EMAIL_MUST_BE_NOT_NULL}")
     @Email(message = "{EMAIL_MUST_BE_VALID}")
-//    @Pattern(message = "{EMAIL_MUST_BE_VALID_OUR_PATTERN}", regexp = "")
+    @Pattern(message = "{EMAIL_MUST_BE_VALID_OUR_PATTERN}", regexp = AppConstants.EMAIL_REGEX)
     private String email;
 
     @NotBlank(message = "{PASSWORD_MUST_BE_NOT_NULL}")

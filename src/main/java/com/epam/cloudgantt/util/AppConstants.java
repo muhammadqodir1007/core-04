@@ -1,5 +1,5 @@
 package com.epam.cloudgantt.util;
-
+import com.epam.cloudgantt.controller.*;
 
 public interface AppConstants {
 
@@ -9,4 +9,5 @@ public interface AppConstants {
 
     String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
+    String [] OPEN_PAGES = {AuthController.BASE_PATH};
 }

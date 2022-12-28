@@ -1,5 +1,6 @@
 package com.epam.cloudgantt.controller;
 
+import com.epam.cloudgantt.controller.*;
 import com.epam.cloudgantt.payload.ApiResult;
 import com.epam.cloudgantt.payload.SignUpDTO;
 import com.epam.cloudgantt.service.AuthService;
@@ -21,5 +22,6 @@ public class AuthControllerImpl implements AuthController {
         log.info("signUp method exited: {}", result);
         return result;
     }
+
 
 }

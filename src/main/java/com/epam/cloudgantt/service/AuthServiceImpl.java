@@ -21,7 +21,7 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final SignupMapper signupMapper;
+   private final SignupMapper signupMapper;
 
     private final PasswordEncoder encoder;
 

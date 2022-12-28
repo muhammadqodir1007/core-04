@@ -17,7 +17,7 @@ public interface AuthController {
     String FORGOT_PASSWORD_PATH = "forgot-password";
     String RESET_PASSWORD_PATH = "reset-password";
 
-    @PostMapping(value = SIGN_IN_PATH)
+    @PostMapping(value = SIGN_UP_PATH)
     ApiResult<String> signUp(@Valid @RequestBody SignUpDTO signUpDTO);
 
 }

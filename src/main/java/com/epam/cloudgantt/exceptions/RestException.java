@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class RestException extends RuntimeException {
 
-    private String message;
+    private final String message;
 
     private HttpStatus status = HttpStatus.BAD_REQUEST;
 

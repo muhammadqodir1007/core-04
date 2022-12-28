@@ -5,13 +5,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
-import org.hibernate.annotations.GenericGenerator;
-
-import java.util.UUID;
 
 @MappedSuperclass
 @Getter
-public abstract class AbsLongEntity extends AbsAuditingEntity{
+public abstract class AbsLongEntity extends AbsAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

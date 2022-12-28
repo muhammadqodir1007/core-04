@@ -7,4 +7,7 @@ public interface AuthService {
 
 
     ApiResult<String> signUp(SignUpDTO signUpDTO);
+
+    ApiResult<String> confirmEmail(String string,String email);
+
 }

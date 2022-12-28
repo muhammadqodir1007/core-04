@@ -12,6 +12,18 @@ spring:
     show-sql: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: cloudgantt77@gmail.com
+    password: eketcrixnjrpvzwn
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    confirmLinkIPAndPort: http://localhost:8080
 
 
 

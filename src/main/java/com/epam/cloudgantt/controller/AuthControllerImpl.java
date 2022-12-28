@@ -23,4 +23,5 @@ public class AuthControllerImpl implements AuthController {
         log.info("signUp method exited: {}", result);
         return result;
     }
+
 }

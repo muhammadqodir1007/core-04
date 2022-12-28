@@ -1,5 +1,6 @@
 package com.epam.cloudgantt.controller;
 
+import com.epam.cloudgantt.controller.*;
 import com.epam.cloudgantt.payload.ApiResult;
 import com.epam.cloudgantt.payload.SignUpDTO;
 import com.epam.cloudgantt.service.AuthService;
@@ -17,10 +18,10 @@ public class AuthControllerImpl implements AuthController {
     @Override
     public ApiResult<String> signUp(SignUpDTO signUpDTO) {
         log.info("signUp method entered: {}", signUpDTO);
-
         ApiResult<String> result = authService.signUp(signUpDTO);
-
         log.info("signUp method exited: {}", result);
         return result;
     }
+
+
 }

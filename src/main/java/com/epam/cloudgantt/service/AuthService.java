@@ -2,12 +2,14 @@ package com.epam.cloudgantt.service;
 
 import com.epam.cloudgantt.payload.ApiResult;
 import com.epam.cloudgantt.payload.SignUpDTO;
+import jakarta.transaction.Transactional;
 
 public interface AuthService {
 
 
     ApiResult<String> signUp(SignUpDTO signUpDTO);
 
-    ApiResult<String> confirmEmail(String string,String email);
+    @Transactional
+    ApiResult<String> confirmEmail(String code);
 
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
@@ -13,9 +14,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmail(String email);
 
-    @Transactional
-    @Modifying
-    @Query("UPDATE User u " +
-            "SET u.enabled = TRUE WHERE u.email = ?1")
-    int enableUser(String email);
+    Optional<User> findByVerificationCode(String code);
+
+
+
 }

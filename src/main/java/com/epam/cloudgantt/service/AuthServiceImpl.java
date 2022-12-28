@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
 
     private void sendVerificationCodeToEmail(String email, String code) {
         String subject = MessageByLang.getMessage("HERE_IS_YOUR_VERIFICATION_CODE");
-        String confirmLink = confirmLinkIPAndPort + AppConstants.BASE_PATH + "auth/" + "confirm-email/" + code;
+        String confirmLink = confirmLinkIPAndPort + AppConstants.BASE_PATH + code;
         String mailText = MessageByLang.getMessage("PLEASE_CLICK_ON_THIS_LINK_TO_CONFORM_YOUR_EMAIL") + "\n" + confirmLink;
         mailService.send(email, subject, mailText);
     }

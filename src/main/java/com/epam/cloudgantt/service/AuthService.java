@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface AuthService extends UserDetailsService {
 
-
     ApiResult<String> signUp(SignUpDTO signUpDTO);
 
     ApiResult<TokenDTO> signIn(SignInDTO signInDTO);

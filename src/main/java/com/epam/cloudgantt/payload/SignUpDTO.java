@@ -4,11 +4,15 @@ import com.epam.cloudgantt.util.AppConstants;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.regex.Matcher;
 
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class SignUpDTO {
 
     @NotBlank(message = "{EMAIL_MUST_BE_NOT_NULL}")

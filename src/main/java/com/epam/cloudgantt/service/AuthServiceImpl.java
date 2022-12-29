@@ -61,11 +61,11 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-
     private void sendVerificationCodeToEmail(String email, String code) {
-        String subject = MessageByLang.getMessage("HERE_IS_YOUR_VERIFICATION_CODE");
-        String confirmLink = confirmLinkIPAndPort + AppConstants.BASE_PATH + "auth/" + "confirm-email/" + code;
-        String mailText = MessageByLang.getMessage("PLEASE_CLICK_ON_THIS_LINK_TO_CONFORM_YOUR_EMAIL") + "\n" + confirmLink;
+        String subject = MessageByLang.getMessage("SUBJECT");
+        String confirmLink = confirmLinkIPAndPort  + code;
+        String mailText = mailService.textForEmail(confirmLink);
+//        String mailText = MessageByLang.getMessage("PLEASE_CLICK_ON_THIS_LINK_TO_CONFORM_YOUR_EMAIL") + "\n" + "<button style=\"\"><a href=\"" + confirmLink + "\">Confirm</a></button>";
         mailService.send(email, subject, mailText);
     }
 

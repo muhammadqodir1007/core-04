@@ -25,6 +25,15 @@ spring:
             enable: true
     confirmLinkIPAndPort: http://localhost:3000/confirm-email
 
+app:
+  jwt:
+    access:
+      key: $KC@RusNYQZag9nIR&EaFiD598Sg5*rinwtKE%CiVLBkj7ZztZ
+      expiredAt: 86400000
+    refresh:
+      key: 2sn21%z3F^^6f^Bn#RdOseMAkJElnqR289#q9uuVd8^X8*Q1Yv
+      expiredAt: 604800000
+
 
 
 

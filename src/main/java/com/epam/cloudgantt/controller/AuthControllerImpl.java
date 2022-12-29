@@ -1,7 +1,9 @@
 package com.epam.cloudgantt.controller;
 
 import com.epam.cloudgantt.payload.ApiResult;
+import com.epam.cloudgantt.payload.SignInDTO;
 import com.epam.cloudgantt.payload.SignUpDTO;
+import com.epam.cloudgantt.payload.TokenDTO;
 import com.epam.cloudgantt.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +26,16 @@ public class AuthControllerImpl implements AuthController {
         ApiResult<String> result = authService.signUp(signUpDTO);
 
         log.info("signUp method exited: {}", result);
+        return result;
+    }
+
+    @Override
+    public ApiResult<TokenDTO> signIn(SignInDTO signInDTO) {
+        log.info("signIn method entered: {}", signInDTO);
+
+        ApiResult<TokenDTO> result = authService.signIn(signInDTO);
+
+        log.info("signIn method exited: {}", result);
         return result;
     }
 

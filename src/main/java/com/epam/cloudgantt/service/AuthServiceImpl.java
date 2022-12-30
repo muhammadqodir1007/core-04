@@ -74,9 +74,7 @@ public class AuthServiceImpl implements AuthService {
         String verificationCode = String.valueOf(UUID.randomUUID());
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
-
-//        sendVerificationCodeToEmail(user.getEmail(), verificationCode);
-
+        sendVerificationCodeToEmail(user.getEmail(), verificationCode);
         return ApiResult.successResponse(MessageByLang.getMessage("OPEN_YOUR_EMAIL_TO_CONFORM_IT"));
     }
 

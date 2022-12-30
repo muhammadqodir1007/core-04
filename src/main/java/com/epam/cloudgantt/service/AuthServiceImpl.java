@@ -8,18 +8,26 @@ import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.UserRepository;
 import com.epam.cloudgantt.security.JWTProvider;
 import com.epam.cloudgantt.util.AppConstants;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.security.Principal;
 import java.util.Objects;
 import java.util.UUID;
+
+import static com.epam.cloudgantt.util.AppConstants.EMAIL_REGEX;
+import static com.epam.cloudgantt.util.AppConstants.PASSWORD_REGEX;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -63,10 +71,13 @@ public class AuthServiceImpl implements AuthService {
             return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
 
         //todo check password with regex and other checking req
-//        return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+        if (!signUpDTO.getPassword().matches(PASSWORD_REGEX))
+            return ApiResult.errorResponseWithData(
+                    new SignUpResDTO(true, false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
 
-        //todo check email with regex and other checking req
-//        return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+        //todo check email with regex and other checking req ask about epam.com ext
+        if (!signUpDTO.getEmail().matches(EMAIL_REGEX))
+        return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("EMAIL_MUST_BE_VALID_OUR_PATTERN")));
 
         if (userRepository.existsByEmail(signUpDTO.getEmail()))
             return ApiResult.errorResponseWithData(
@@ -147,8 +158,21 @@ public class AuthServiceImpl implements AuthService {
         mailService.send(email, subject, mailText);
     }
 
+     public ApiResult<SignUpResDTO> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO){
 
-    public int add(int a, int b) {
-        return a + b;
-    }
+         if (!changePasswordDTO.getPassword().matches(PASSWORD_REGEX))
+             return ApiResult.errorResponseWithData(
+                     new SignUpResDTO(true, false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
+
+         if (!Objects.equals(changePasswordDTO.getPassword(),changePasswordDTO.getPrePassword()))
+             return ApiResult.errorResponseWithData(
+                     new SignUpResDTO(true, false, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+
+
+//         User user =(User) auth.getPrincipal();
+//         user.setPassword(changePasswordDTO.getPassword());
+
+
+     }
+
 }

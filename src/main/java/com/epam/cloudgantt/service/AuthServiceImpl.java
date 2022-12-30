@@ -4,10 +4,7 @@ import com.epam.cloudgantt.config.MessageByLang;
 import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.mapper.UserMapper;
-import com.epam.cloudgantt.payload.ApiResult;
-import com.epam.cloudgantt.payload.SignInDTO;
-import com.epam.cloudgantt.payload.SignUpDTO;
-import com.epam.cloudgantt.payload.TokenDTO;
+import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.UserRepository;
 import com.epam.cloudgantt.security.JWTProvider;
 import com.epam.cloudgantt.util.AppConstants;
@@ -58,15 +55,25 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ApiResult<String> signUp(SignUpDTO signUpDTO) {
+    public ApiResult<?> signUp(SignUpDTO signUpDTO) {
         if (Objects.isNull(signUpDTO))
             throw RestException.restThrow(MessageByLang.getMessage("REQUEST_DATA_BE_NOT_NULL"));
 
         if (!Objects.equals(signUpDTO.getPassword(), signUpDTO.getPrePassword()))
-            throw RestException.restThrow(MessageByLang.getMessage("PASSWORDS_NOT_EQUAL"));
+            return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+
+        //todo check password with regex and other checking req
+//        return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+
+        //todo check email with regex and other checking req
+//        return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
 
         if (userRepository.existsByEmail(signUpDTO.getEmail()))
-            throw RestException.restThrow(MessageByLang.getMessage("EMAIL_ALREADY_EXISTS"));
+            return ApiResult.errorResponseWithData(
+                    new SignUpResDTO(
+                            true,
+                            false,
+                            MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
 
         User user = userMapper.mapSignUpDTOToUser(signUpDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -106,10 +113,20 @@ public class AuthServiceImpl implements AuthService {
         user.setEnabled(true);
         user.setVerificationCode(null);
         userRepository.save(user);
-
         return ApiResult.successResponse(MessageByLang.getMessage("USER_SUCCESSFULLY_ENABLED"));
     }
 
+    @Override
+    public ApiResult<String> resendVerificationCode(String email) {
+        if (Objects.isNull(email))
+            throw RestException.restThrow(MessageByLang.getMessage("EMAIL_MUST_BE_NOT_NULL"));
+
+        User user = userRepository.findByEmail(email).orElseThrow(() -> RestException.restThrow("User not registered"));
+        String verificationCode = String.valueOf(UUID.randomUUID());
+        user.setVerificationCode(verificationCode);
+        userRepository.save(user);
+        return ApiResult.successResponse("Successfully send new verification code");
+    }
 
     /**
      * SEND TO EMAIL MESSAGE ABOUT VERIFICATION ACCOUNT
@@ -125,13 +142,13 @@ public class AuthServiceImpl implements AuthService {
             throw RestException.restThrow("Verification code must not be null");
 
         String subject = MessageByLang.getMessage("HERE_IS_YOUR_VERIFICATION_CODE");
-        String confirmLink = confirmLinkIPAndPort  + verificationCode;
+        String confirmLink = confirmLinkIPAndPort + verificationCode;
         String mailText = MessageByLang.getMessage("PLEASE_CLICK_ON_THIS_LINK_TO_CONFORM_YOUR_EMAIL") + "\n" + confirmLink;
         mailService.send(email, subject, mailText);
     }
 
 
-    public int add(int a, int b){
-        return a+b;
+    public int add(int a, int b) {
+        return a + b;
     }
 }

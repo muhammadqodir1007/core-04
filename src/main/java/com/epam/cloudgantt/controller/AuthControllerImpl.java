@@ -1,9 +1,6 @@
 package com.epam.cloudgantt.controller;
 
-import com.epam.cloudgantt.payload.ApiResult;
-import com.epam.cloudgantt.payload.SignInDTO;
-import com.epam.cloudgantt.payload.SignUpDTO;
-import com.epam.cloudgantt.payload.TokenDTO;
+import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,10 +17,10 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    public ApiResult<String> signUp(SignUpDTO signUpDTO) {
+    public ApiResult<?> signUp(SignUpDTO signUpDTO) {
         log.info("signUp method entered: {}", signUpDTO);
 
-        ApiResult<String> result = authService.signUp(signUpDTO);
+        ApiResult<?> result = authService.signUp(signUpDTO);
 
         log.info("signUp method exited: {}", result);
         return result;
@@ -43,8 +40,13 @@ public class AuthControllerImpl implements AuthController {
     public ApiResult<String> confirm(String verificationCode) {
         log.info("confirm method entered : ");
         return authService.confirmEmail(verificationCode);
-
     }
 
-
+    @Override
+    public ApiResult<String> resendVerificationCode(String email) {
+        log.info("Resend verification code method entered : {}", email);
+        ApiResult<String> result = authService.resendVerificationCode(email);
+        log.info("Resend verification code method exited : {}", result);
+        return result;
+    }
 }

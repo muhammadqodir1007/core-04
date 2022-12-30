@@ -16,8 +16,8 @@ public class MvcConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "DELETE", "PATCH", "PUT");
     }
 
-    @Bean(name = "mvcHandlerMappingIntrospector")
-    public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
-        return new HandlerMappingIntrospector();
-    }
+//    @Bean
+//    public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
+//        return new HandlerMappingIntrospector();
+//    }
 }

@@ -49,4 +49,14 @@ public class AuthControllerImpl implements AuthController {
         log.info("Resend verification code method exited : {}", result);
         return result;
     }
+
+    @Override
+    public ApiResult<SignUpResDTO> changePassword(ChangePasswordDTO changePasswordDTO) {
+        log.info("Change password method entered : {}", changePasswordDTO);
+        ApiResult<SignUpResDTO> result = authService.changePassword(changePasswordDTO);
+        log.info("Change password method exited : {}", changePasswordDTO);
+        return result;
+    }
+
+
 }

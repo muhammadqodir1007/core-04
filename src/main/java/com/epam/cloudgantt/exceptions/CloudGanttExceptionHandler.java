@@ -2,6 +2,7 @@ package com.epam.cloudgantt.exceptions;
 
 import com.epam.cloudgantt.payload.ApiResult;
 import com.epam.cloudgantt.payload.ErrorData;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +14,18 @@ import java.util.List;
 
 @RestControllerAdvice
 public class CloudGanttExceptionHandler {
+
+
+    @ExceptionHandler()
+    public ResponseEntity<ApiResult<ErrorData>> handleException(JwtException ex) {
+        ex.printStackTrace();
+
+        return null;
+
+    }
+
+
+
 
     @ExceptionHandler(value = RestException.class)
     public ResponseEntity<ApiResult<ErrorData>> handleException(RestException ex) {

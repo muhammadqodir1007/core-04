@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -158,7 +159,7 @@ public class AuthServiceImpl implements AuthService {
         mailService.send(email, subject, mailText);
     }
 
-     public ApiResult<SignUpResDTO> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO){
+     public ApiResult changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO){
 
          if (!changePasswordDTO.getPassword().matches(PASSWORD_REGEX))
              return ApiResult.errorResponseWithData(
@@ -169,10 +170,22 @@ public class AuthServiceImpl implements AuthService {
                      new SignUpResDTO(true, false, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
 
 
-//         User user =(User) auth.getPrincipal();
-//         user.setPassword(changePasswordDTO.getPassword());
+         User user = getUserDetails();
+         user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
+         userRepository.save(user);
 
+         return ApiResult.successResponse( userRepository.save(user));
 
      }
+
+
+    private User getUserDetails() {
+        return (User) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+    }
+
+
 
 }

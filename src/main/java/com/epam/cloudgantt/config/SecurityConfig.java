@@ -1,13 +1,16 @@
 package com.epam.cloudgantt.config;
 
-import com.epam.cloudgantt.security.filter.AuthenticateTokenFilter;
+import com.epam.cloudgantt.security.JWTAuthProvider;
+import com.epam.cloudgantt.security.JWTFilter;
 import com.epam.cloudgantt.util.AppConstants;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,7 +18,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JWTFilter jwtFilter;
+    private final JWTAuthProvider jwtAuthProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -24,15 +31,16 @@ public class SecurityConfig {
                 .disable()
                 .cors()
                 .disable()
-                .authorizeHttpRequests(
-                        auth ->
-                                auth
-                                        .requestMatchers(AppConstants.OPEN_PAGES).permitAll()
-                                        .anyRequest().permitAll()
-
-                );
-
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers(AppConstants.OPEN_PAGES).permitAll()
+                                .anyRequest().authenticated())
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthProvider)
+                .and()
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         return http.build();
     }
@@ -44,13 +52,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    public AuthenticateTokenFilter authenticationJwtTokenFilter() {
-        return new AuthenticateTokenFilter();
-    }
 
 }

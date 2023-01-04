@@ -30,5 +30,8 @@ public interface AuthController {
     ApiResult<String> resendVerificationCode(@RequestParam String email);
 
     @PostMapping(value = RESET_PASSWORD_PATH)
-    ApiResult<SignUpResDTO> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO);
+    ApiResult<AuthResDTO> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO);
+
+    @GetMapping(value = FORGOT_PASSWORD_PATH)
+    ApiResult<AuthResDTO> forgotPassword(@RequestParam String email);
 }

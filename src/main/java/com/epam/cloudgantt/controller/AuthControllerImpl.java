@@ -51,12 +51,18 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    public ApiResult<SignUpResDTO> changePassword(ChangePasswordDTO changePasswordDTO) {
+    public ApiResult<AuthResDTO> changePassword(ChangePasswordDTO changePasswordDTO) {
         log.info("Change password method entered : {}", changePasswordDTO);
-        ApiResult<SignUpResDTO> result = authService.changePassword(changePasswordDTO);
+        ApiResult<AuthResDTO> result = authService.changePassword(changePasswordDTO);
         log.info("Change password method exited : {}", changePasswordDTO);
         return result;
     }
 
-
+    @Override
+    public ApiResult<AuthResDTO> forgotPassword(String email) {
+        log.info("Forgot password method entered : {}", email);
+        ApiResult<AuthResDTO> result = authService.forgotPassword(email);
+        log.info("Forgot password method exited : {}", result);
+        return result;
+    }
 }

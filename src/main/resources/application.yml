@@ -5,10 +5,10 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/cloud_gantt
     username: postgres
-    password: root
+    password: root123
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -23,7 +23,7 @@ spring:
           auth: true
           starttls:
             enable: true
-    confirmLinkIPAndPort: http://localhost:8081/api/v1/auth/confirm-email/
+    confirmLinkIPAndPort: http://localhost:3000/api/v1/auth/confirm-email/
 
 app:
   jwt:

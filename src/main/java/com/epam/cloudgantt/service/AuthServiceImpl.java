@@ -8,23 +8,19 @@ import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.UserRepository;
 import com.epam.cloudgantt.security.JWTProvider;
 import com.epam.cloudgantt.util.AppConstants;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.security.Principal;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.epam.cloudgantt.util.AppConstants.EMAIL_REGEX;
@@ -69,23 +65,21 @@ public class AuthServiceImpl implements AuthService {
             throw RestException.restThrow(MessageByLang.getMessage("REQUEST_DATA_BE_NOT_NULL"));
 
         if (!Objects.equals(signUpDTO.getPassword(), signUpDTO.getPrePassword()))
-            return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+            return ApiResult.errorResponseWithData(new AuthResDTO(false, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
 
-        //todo check password with regex and other checking req
         if (!signUpDTO.getPassword().matches(PASSWORD_REGEX))
             return ApiResult.errorResponseWithData(
-                    new SignUpResDTO(true, false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
+                    new AuthResDTO(false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
 
-        //todo check email with regex and other checking req ask about epam.com ext
         if (!signUpDTO.getEmail().matches(EMAIL_REGEX))
-        return ApiResult.errorResponseWithData(new SignUpResDTO(false, true, MessageByLang.getMessage("EMAIL_MUST_BE_VALID_OUR_PATTERN")));
+            return ApiResult.errorResponseWithData(new AuthResDTO(true,
+                    MessageByLang.getMessage("EMAIL_MUST_BE_VALID_OUR_PATTERN")));
 
         if (userRepository.existsByEmail(signUpDTO.getEmail()))
             return ApiResult.errorResponseWithData(
-                    new SignUpResDTO(
+                    new AuthResDTO(
                             true,
-                            false,
-                            MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+                            MessageByLang.getMessage("EMAIL_ALREADY_EXISTS")));
 
         User user = userMapper.mapSignUpDTOToUser(signUpDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -140,6 +134,55 @@ public class AuthServiceImpl implements AuthService {
         return ApiResult.successResponse("Successfully send new verification code");
     }
 
+
+    @Override
+    public ApiResult<AuthResDTO> changePassword(ChangePasswordDTO changePasswordDTO) {
+
+        if (!changePasswordDTO.getPassword().matches(PASSWORD_REGEX))
+            return ApiResult.errorResponseWithData(
+                    new AuthResDTO(false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
+
+        if (!Objects.equals(changePasswordDTO.getPassword(), changePasswordDTO.getPrePassword()))
+            return ApiResult.errorResponseWithData(
+                    new AuthResDTO(false, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+
+
+        Optional<User> optionalUser = userRepository.findByEmail(changePasswordDTO.getEmail());
+
+        if (optionalUser.isEmpty())
+            return ApiResult.errorResponseWithData(new AuthResDTO(true, MessageByLang.getMessage("USER_NOT_REGISTERED")));
+
+
+        User user = optionalUser.get();
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
+        userRepository.save(user);
+
+        return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("PASSWORD_SUCCESSFULLY_CHANGED")));
+    }
+
+    @Override
+    public User getUserById(UUID id) {
+        return userRepository.findById(id).orElseThrow(() -> RestException.restThrow(MessageByLang.getMessage("USER_NOT_FOUND")));
+    }
+
+    @Override
+    public ApiResult<AuthResDTO> forgotPassword(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty())
+            return ApiResult.errorResponseWithData(new AuthResDTO(true, MessageByLang.getMessage("USER_NOT_REGISTERED")));
+
+        User user = optionalUser.get();
+        String verificationCode = UUID.randomUUID().toString();
+        user.setVerificationCode(verificationCode);
+        userRepository.save(user);
+
+        //todo righ for change password
+        sendVerificationCodeToEmail(email, verificationCode);
+
+        return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("SUCCESSFULLY_SEND_CODE_TO_EMAIL")));
+    }
+
+
     /**
      * SEND TO EMAIL MESSAGE ABOUT VERIFICATION ACCOUNT
      *
@@ -158,34 +201,6 @@ public class AuthServiceImpl implements AuthService {
         String mailText = MessageByLang.getMessage("PLEASE_CLICK_ON_THIS_LINK_TO_CONFORM_YOUR_EMAIL") + "\n" + confirmLink;
         mailService.send(email, subject, mailText);
     }
-
-     public ApiResult changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO){
-
-         if (!changePasswordDTO.getPassword().matches(PASSWORD_REGEX))
-             return ApiResult.errorResponseWithData(
-                     new SignUpResDTO(true, false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
-
-         if (!Objects.equals(changePasswordDTO.getPassword(),changePasswordDTO.getPrePassword()))
-             return ApiResult.errorResponseWithData(
-                     new SignUpResDTO(true, false, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
-
-
-         User user = getUserDetails();
-         user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
-         userRepository.save(user);
-
-         return ApiResult.successResponse( userRepository.save(user));
-
-     }
-
-
-    private User getUserDetails() {
-        return (User) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-    }
-
 
 
 }

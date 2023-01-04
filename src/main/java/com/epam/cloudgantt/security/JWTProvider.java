@@ -2,6 +2,7 @@ package com.epam.cloudgantt.security;
 
 import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.exceptions.RestException;
+import com.epam.cloudgantt.util.AppConstants;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -10,13 +11,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Component
 @Slf4j
 public class JWTProvider {
-
-    @Value("${jwt.secret}")
-    private String secret;
 
     @Value("${app.jwt.access.key}")
     private String accessTokenKey;
@@ -55,39 +54,34 @@ public class JWTProvider {
     }
 
 
-    public String parseJwt(HttpServletRequest request) {
-        String headerAuth = request.getHeader("Authorization");
-
-        if (!StringUtils.hasText(headerAuth) && !headerAuth.startsWith("Bearer ")) {
-            RestException.restThrow("Incorrect token");
-        }
-        return headerAuth.substring(7, headerAuth.length());
-    }
-
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(accessTokenKey).parseClaimsJws(authToken);
             return true;
         } catch (SignatureException e) {
-            log.error("Invalid JWT signature: ", e.getMessage());
+            log.error("Invalid JWT signature: {}", e.getMessage());
             throw e;
         } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: ", e.getMessage());
+            log.error("Invalid JWT token: {}", e.getMessage());
             throw e;
         } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: ", e.getMessage());
+            log.error("JWT token is expired: {}", e.getMessage());
             throw e;
         } catch (UnsupportedJwtException e) {
-            log.error("JWT token is unsupported: ", e.getMessage());
+            log.error("JWT token is unsupported: {}", e.getMessage());
             throw e;
         } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: ", e.getMessage());
+            log.error("JWT claims string is empty: {}", e.getMessage());
             throw e;
         }
     }
 
 
     public String getUserUUIDFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(accessTokenKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser()
+                .setSigningKey(accessTokenKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 }

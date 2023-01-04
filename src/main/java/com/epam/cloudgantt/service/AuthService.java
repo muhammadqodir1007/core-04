@@ -14,4 +14,5 @@ public interface AuthService extends UserDetailsService {
     ApiResult<String> confirmEmail(String code);
 
     ApiResult<String> resendVerificationCode(String email);
+    ApiResult<SignUpResDTO> changePassword(ChangePasswordDTO changePasswordDTO);
 }

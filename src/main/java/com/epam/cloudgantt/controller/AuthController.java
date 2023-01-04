@@ -15,6 +15,8 @@ public interface AuthController {
     String FORGOT_PASSWORD_PATH = "forgot-password";
     String RESET_PASSWORD_PATH = "reset-password";
 
+    String RESET_FORGOTTEN_PASSWORD_PATH = "reset-forgotten-password";
+
     @PostMapping(value = SIGN_UP_PATH)
     ApiResult<?> signUp(@Valid @RequestBody SignUpDTO signUpDTO);
 
@@ -34,4 +36,7 @@ public interface AuthController {
 
     @GetMapping(value = FORGOT_PASSWORD_PATH)
     ApiResult<AuthResDTO> forgotPassword(@RequestParam String email);
+
+    @PostMapping("/reset-forgotten-password/{verificationCode}")
+    ApiResult<AuthResDTO> resetForgottenPassword(@Valid @RequestBody ResetForgottenPasswordDTO resetForgottenPasswordDTO, @PathVariable String verificationCode);
 }

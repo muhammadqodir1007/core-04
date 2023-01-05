@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = AuthController.BASE_PATH)
 public interface AuthController {
 
-    String BASE_PATH = AppConstants.BASE_PATH + "auth";
+    String BASE_PATH = AppConstants.BASE_PATH + "auth/";
     String SIGN_UP_PATH = "sign-up";
     String SIGN_IN_PATH = "sign-in";
     String RESEND_VERIFY_ACCOUNT_CODE_PATH = "resend-verification-code";
@@ -16,7 +16,7 @@ public interface AuthController {
     String RESET_PASSWORD_PATH = "reset-password";
 
     @PostMapping(value = SIGN_UP_PATH)
-    ApiResult<?> signUp(@Valid @RequestBody SignUpDTO signUpDTO);
+    ApiResult<AuthResDTO> signUp(@Valid @RequestBody SignUpDTO signUpDTO);
 
 
     @PostMapping(value = SIGN_IN_PATH)

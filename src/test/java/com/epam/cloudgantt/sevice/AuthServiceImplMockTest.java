@@ -62,7 +62,7 @@ public class AuthServiceImplMockTest {
 //        verify(mailService, times(1)).send(any(String.class), any(String.class), any(String.class));
 
 
-        ApiResult<String> result = authService.signUp(signUpDTO);
+        ApiResult<?> result = authService.signUp(signUpDTO);
         assertThat(result).isNotNull();
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getData()).isNotNull();

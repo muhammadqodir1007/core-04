@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface AuthService extends UserDetailsService {
 
-    ApiResult<?> signUp(SignUpDTO signUpDTO);
+    ApiResult<AuthResDTO> signUp(SignUpDTO signUpDTO);
 
     ApiResult<TokenDTO> signIn(SignInDTO signInDTO);
 

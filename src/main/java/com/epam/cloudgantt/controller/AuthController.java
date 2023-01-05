@@ -37,6 +37,6 @@ public interface AuthController {
     @GetMapping(value = FORGOT_PASSWORD_PATH)
     ApiResult<AuthResDTO> forgotPassword(@RequestParam String email);
 
-    @PostMapping("/reset-forgotten-password/{verificationCode}")
-    ApiResult<AuthResDTO> resetForgottenPassword(@Valid @RequestBody ResetForgottenPasswordDTO resetForgottenPasswordDTO, @PathVariable String verificationCode);
+    @PostMapping(value = RESET_FORGOTTEN_PASSWORD_PATH)
+    ApiResult<AuthResDTO> resetForgottenPassword(@Valid @RequestBody ResetForgottenPasswordDTO resetForgottenPasswordDTO);
 }

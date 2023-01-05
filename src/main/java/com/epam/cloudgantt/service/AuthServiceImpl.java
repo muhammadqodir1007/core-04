@@ -187,6 +187,29 @@ public class AuthServiceImpl implements AuthService {
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("SUCCESSFULLY_SEND_CODE_TO_EMAIL")));
     }
 
+    @Override
+    public ApiResult<AuthResDTO> resetForgottenPassword(ResetForgottenPasswordDTO resetForgottenPasswordDTO) {
+        if (Objects.isNull(resetForgottenPasswordDTO))
+            throw RestException.restThrow(MessageByLang.getMessage("REQUEST_DATA_BE_NOT_NULL"));
+
+        if (!Objects.equals(resetForgottenPasswordDTO.getPassword(), resetForgottenPasswordDTO.getPrePassword()))
+            return ApiResult.errorResponseWithData(new AuthResDTO(false, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+
+        if (!resetForgottenPasswordDTO.getPassword().matches(PASSWORD_REGEX))
+            return ApiResult.errorResponseWithData(
+                    new AuthResDTO(false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
+
+        Optional<User> userOptional = userRepository.findByVerificationCode(resetForgottenPasswordDTO.getVerificationCode());
+        if (userOptional.isEmpty())
+            return ApiResult.errorResponseWithData(AuthResDTO.wrongVerificationCode());
+
+        User user = userOptional.get();
+        user.setPassword(passwordEncoder.encode(resetForgottenPasswordDTO.getPassword()));
+        user.setVerificationCode(null);
+        userRepository.save(user);
+        return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("PASSWORD_SUCCESSFULLY_CHANGED")));
+    }
+
 
     /**
      * SEND TO EMAIL MESSAGE ABOUT VERIFICATION ACCOUNT
@@ -194,7 +217,7 @@ public class AuthServiceImpl implements AuthService {
      * @param email            String
      * @param verificationCode String
      */
-    private void sendVerificationCodeToEmail(String email, String verificationCode,String url) {
+    private void sendVerificationCodeToEmail(String email, String verificationCode, String url) {
         if (email == null)
             throw RestException.restThrow("Email must not be null");
 

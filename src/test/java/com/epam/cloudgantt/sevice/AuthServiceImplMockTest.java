@@ -11,9 +11,11 @@ import com.epam.cloudgantt.service.AuthServiceImpl;
 import com.epam.cloudgantt.service.MailService;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,8 +27,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+//@ExtendWith(MockitoExtension.class)
 public class AuthServiceImplMockTest {
-
 
     @InjectMocks
     private AuthServiceImpl authService;

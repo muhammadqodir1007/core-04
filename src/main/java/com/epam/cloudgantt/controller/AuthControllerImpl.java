@@ -65,4 +65,12 @@ public class AuthControllerImpl implements AuthController {
         log.info("Forgot password method exited : {}", result);
         return result;
     }
+
+    @Override
+    public ApiResult<AuthResDTO> resetForgottenPassword(ResetForgottenPasswordDTO resetForgottenPasswordDTO) {
+        log.info("Reset forgotten password method entered.");
+        ApiResult<AuthResDTO> result = authService.resetForgottenPassword(resetForgottenPasswordDTO);
+        log.info("Reset forgotten password method entered.");
+        return result;
+    }
 }

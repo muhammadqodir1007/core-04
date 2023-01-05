@@ -22,4 +22,6 @@ public interface AuthService extends UserDetailsService {
     User getUserById(UUID id);
 
     ApiResult<AuthResDTO> forgotPassword(String email);
+
+    ApiResult<AuthResDTO> resetForgottenPassword(ResetForgottenPasswordDTO resetForgottenPasswordDTO);
 }

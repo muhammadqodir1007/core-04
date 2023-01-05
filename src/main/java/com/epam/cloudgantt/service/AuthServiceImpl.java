@@ -36,8 +36,14 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JWTProvider jwtProvider;
 
-    @Value("${spring.mail.confirmLinkIPAndPort}")
+    @Value("${spring.mail.iPAndPort}")
     private String confirmLinkIPAndPort;
+
+    @Value("${spring.mail.conformEmailForSignUpURL}")
+    private String conformEmailForSignUpURL;
+
+    @Value("${spring.mail.conformEmailForResetForgottenPasswordURL}")
+    private String conformEmailForResetForgottenPasswordURL;
 
     public AuthServiceImpl(UserRepository userRepository,
                            UserMapper userMapper,
@@ -87,6 +93,8 @@ public class AuthServiceImpl implements AuthService {
         String verificationCode = String.valueOf(UUID.randomUUID());
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
+        sendVerificationCodeToEmail(user.getEmail(), verificationCode, conformEmailForSignUpURL);
+        return ApiResult.successResponse(MessageByLang.getMessage("OPEN_YOUR_EMAIL_TO_CONFORM_IT"));
         sendVerificationCodeToEmail(user.getEmail(), verificationCode);
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("OPEN_YOUR_EMAIL_TO_CONFORM_IT")));
     }
@@ -176,10 +184,32 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
 
-        //todo righ for change password
-        sendVerificationCodeToEmail(email, verificationCode);
+        sendVerificationCodeToEmail(email, verificationCode, conformEmailForResetForgottenPasswordURL);
 
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("SUCCESSFULLY_SEND_CODE_TO_EMAIL")));
+    }
+
+    @Override
+    public ApiResult<AuthResDTO> resetForgottenPassword(ResetForgottenPasswordDTO resetForgottenPasswordDTO) {
+        if (Objects.isNull(resetForgottenPasswordDTO))
+            throw RestException.restThrow(MessageByLang.getMessage("REQUEST_DATA_BE_NOT_NULL"));
+
+        if (!Objects.equals(resetForgottenPasswordDTO.getPassword(), resetForgottenPasswordDTO.getPrePassword()))
+            return ApiResult.errorResponseWithData(new AuthResDTO(false, MessageByLang.getMessage("PASSWORDS_NOT_EQUAL")));
+
+        if (!resetForgottenPasswordDTO.getPassword().matches(PASSWORD_REGEX))
+            return ApiResult.errorResponseWithData(
+                    new AuthResDTO(false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
+
+        Optional<User> userOptional = userRepository.findByVerificationCode(resetForgottenPasswordDTO.getVerificationCode());
+        if (userOptional.isEmpty())
+            return ApiResult.errorResponseWithData(AuthResDTO.wrongVerificationCode());
+
+        User user = userOptional.get();
+        user.setPassword(passwordEncoder.encode(resetForgottenPasswordDTO.getPassword()));
+        user.setVerificationCode(null);
+        userRepository.save(user);
+        return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("PASSWORD_SUCCESSFULLY_CHANGED")));
     }
 
 
@@ -189,7 +219,7 @@ public class AuthServiceImpl implements AuthService {
      * @param email            String
      * @param verificationCode String
      */
-    private void sendVerificationCodeToEmail(String email, String verificationCode) {
+    private void sendVerificationCodeToEmail(String email, String verificationCode, String url) {
         if (email == null)
             throw RestException.restThrow("Email must not be null");
 
@@ -197,7 +227,7 @@ public class AuthServiceImpl implements AuthService {
             throw RestException.restThrow("Verification code must not be null");
 
         String subject = MessageByLang.getMessage("HERE_IS_YOUR_VERIFICATION_CODE");
-        String confirmLink = confirmLinkIPAndPort + verificationCode;
+        String confirmLink = confirmLinkIPAndPort + url + verificationCode;
         String mailText = MessageByLang.getMessage("PLEASE_CLICK_ON_THIS_LINK_TO_CONFORM_YOUR_EMAIL") + "\n" + confirmLink;
         mailService.send(email, subject, mailText);
     }

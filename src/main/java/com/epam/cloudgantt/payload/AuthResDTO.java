@@ -12,6 +12,8 @@ public class AuthResDTO {
 
     private boolean errorPassword;
 
+    private boolean errorVerificationCode;
+
     private String message;
 
     public AuthResDTO(boolean errorEmail, String message) {
@@ -25,5 +27,14 @@ public class AuthResDTO {
 
     public AuthResDTO(String message) {
         this.message = message;
+    }
+
+    private AuthResDTO() {
+        this.errorVerificationCode = true;
+    }
+
+
+    public static AuthResDTO wrongVerificationCode(){
+        return new AuthResDTO();
     }
 }

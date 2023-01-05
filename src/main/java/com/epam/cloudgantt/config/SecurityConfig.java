@@ -1,5 +1,6 @@
 package com.epam.cloudgantt.config;
 
+import com.epam.cloudgantt.controller.AuthController;
 import com.epam.cloudgantt.security.JWTAuthProvider;
 import com.epam.cloudgantt.security.JWTFilter;
 import com.epam.cloudgantt.util.AppConstants;
@@ -34,6 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers(AppConstants.OPEN_PAGES).permitAll()
+                                .requestMatchers(AuthController.BASE_PATH + "/confirm-email/{verificationCode}").permitAll()
                                 .anyRequest().authenticated())
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthProvider)

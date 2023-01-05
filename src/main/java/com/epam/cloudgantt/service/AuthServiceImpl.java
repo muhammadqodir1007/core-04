@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -66,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ApiResult<?> signUp(SignUpDTO signUpDTO) {
+    public ApiResult<AuthResDTO> signUp(SignUpDTO signUpDTO) {
         if (Objects.isNull(signUpDTO))
             throw RestException.restThrow(MessageByLang.getMessage("REQUEST_DATA_BE_NOT_NULL"));
 
@@ -94,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
         sendVerificationCodeToEmail(user.getEmail(), verificationCode, conformEmailForSignUpURL);
-        return ApiResult.successResponse(MessageByLang.getMessage("OPEN_YOUR_EMAIL_TO_CONFORM_IT"));
+        return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("OPEN_YOUR_EMAIL_TO_CONFORM_IT")));
     }
 
     @Override

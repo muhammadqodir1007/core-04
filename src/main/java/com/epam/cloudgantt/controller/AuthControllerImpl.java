@@ -17,10 +17,10 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    public ApiResult<?> signUp(SignUpDTO signUpDTO) {
+    public ApiResult<AuthResDTO> signUp(SignUpDTO signUpDTO) {
         log.info("signUp method entered: {}", signUpDTO);
 
-        ApiResult<?> result = authService.signUp(signUpDTO);
+        ApiResult<AuthResDTO> result = authService.signUp(signUpDTO);
 
         log.info("signUp method exited: {}", result);
         return result;

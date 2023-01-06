@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -16,6 +17,7 @@ import java.util.Collection;
 @Table(name = "users")
 @Getter
 @Setter
+@Accessors(chain = true)
 public class User extends AbsUUIDEntity implements UserDetails {
 
     @Column(nullable = false, unique = true)

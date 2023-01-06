@@ -36,7 +36,7 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers(AppConstants.OPEN_PAGES).permitAll()
                                 .requestMatchers(AuthController.BASE_PATH + "/confirm-email/{verificationCode}").permitAll()
-                                .anyRequest().authenticated())
+                                .anyRequest().permitAll())
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthProvider)
                 .and()

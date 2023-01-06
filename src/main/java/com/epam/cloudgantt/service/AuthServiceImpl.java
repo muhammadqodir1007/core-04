@@ -26,6 +26,7 @@ import static com.epam.cloudgantt.util.AppConstants.EMAIL_REGEX;
 import static com.epam.cloudgantt.util.AppConstants.PASSWORD_REGEX;
 
 @Service
+
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -34,12 +35,6 @@ public class AuthServiceImpl implements AuthService {
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
     private final JWTProvider jwtProvider;
-
-    @Value("${spring.mail.iPAndPort}")
-    private String confirmLinkIPAndPort;
-
-    @Value("${spring.mail.conformEmailForSignUpURL}")
-    private String conformEmailForSignUpURL;
 
     @Value("${spring.mail.conformEmailForResetForgottenPasswordURL}")
     private String conformEmailForResetForgottenPasswordURL;
@@ -92,7 +87,11 @@ public class AuthServiceImpl implements AuthService {
         String verificationCode = String.valueOf(UUID.randomUUID());
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
-        sendVerificationCodeToEmail(user.getEmail(), verificationCode, conformEmailForSignUpURL);
+
+
+        String conformEmailForSignUpURL = "api/v1/auth/confirm-email/";
+        String confirmLinkIPAndPort = "http://localhost:3000/";
+        mailService.sendEmailForSignUpConfirmation(user.getEmail(), MessageByLang.getMessage("SUBJECT"), verificationCode);
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("OPEN_YOUR_EMAIL_TO_CONFORM_IT")));
     }
 
@@ -181,7 +180,7 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
 
-        sendVerificationCodeToEmail(email, verificationCode, conformEmailForResetForgottenPasswordURL);
+        mailService.sendEmailForForForgotPassword(email, verificationCode, conformEmailForResetForgottenPasswordURL);
 
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("SUCCESSFULLY_SEND_CODE_TO_EMAIL")));
     }
@@ -216,18 +215,6 @@ public class AuthServiceImpl implements AuthService {
      * @param email            String
      * @param verificationCode String
      */
-    private void sendVerificationCodeToEmail(String email, String verificationCode, String url) {
-        if (email == null)
-            throw RestException.restThrow("Email must not be null");
-
-        if (verificationCode == null)
-            throw RestException.restThrow("Verification code must not be null");
-
-        String subject = MessageByLang.getMessage("HERE_IS_YOUR_VERIFICATION_CODE");
-        String confirmLink = confirmLinkIPAndPort + url + verificationCode;
-        String mailText = MessageByLang.getMessage("PLEASE_CLICK_ON_THIS_LINK_TO_CONFORM_YOUR_EMAIL") + "\n" + confirmLink;
-        mailService.send(email, subject, mailText);
-    }
 
 
 }

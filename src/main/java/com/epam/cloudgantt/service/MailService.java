@@ -3,8 +3,13 @@ package com.epam.cloudgantt.service;
 
 public interface MailService {
 
-    void send(String to, String subject, String message);
+    void sendEmailForSignUpConfirmation(String to, String subject, String link);
 
-    String textForEmail(String confirmLink);
+    void sendEmailForForForgotPassword(String to, String subject, String link);
+
+    String textForConfirmationEmail(String confirmLink);
+
+    String textForForgotPassword(String confirmLink);
+
 
 }

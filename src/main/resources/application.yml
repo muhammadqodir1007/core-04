@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/cloud_gantt
     username: postgres
-    password: 1007
+    password: root123
   jpa:
     hibernate:
       ddl-auto: update
@@ -24,7 +24,7 @@ spring:
           starttls:
             enable: true
     iPAndPort: http://localhost:3000/
-    conformEmailForSignUpURL: api/v1/auth/confirm-email/
+    conformEmailForSignUpURL: confirm-email/
     conformEmailForResetForgottenPasswordURL: api/v1/auth/confirm-email-for-reset-forgotten-password/
 
 app:

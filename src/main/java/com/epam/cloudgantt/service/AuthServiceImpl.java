@@ -158,9 +158,12 @@ public class AuthServiceImpl implements AuthService {
 
 
         User user = optionalUser.get();
-        user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
-        userRepository.save(user);
+        if (!Objects.equals(user.getVerificationCode(), changePasswordDTO.getVerificationCode()))
+            return ApiResult.errorResponseWithData(AuthResDTO.wrongVerificationCode(MessageByLang.getMessage("INVALID_VERIFICATION_CODE")));
 
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
+        user.setVerificationCode(null);
+        userRepository.save(user);
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("PASSWORD_SUCCESSFULLY_CHANGED")));
     }
 
@@ -199,7 +202,7 @@ public class AuthServiceImpl implements AuthService {
 
         Optional<User> userOptional = userRepository.findByVerificationCode(resetForgottenPasswordDTO.getVerificationCode());
         if (userOptional.isEmpty())
-            return ApiResult.errorResponseWithData(AuthResDTO.wrongVerificationCode());
+            return ApiResult.errorResponseWithData(AuthResDTO.wrongVerificationCode(MessageByLang.getMessage("INVALID_VERIFICATION_CODE")));
 
         User user = userOptional.get();
         user.setPassword(passwordEncoder.encode(resetForgottenPasswordDTO.getPassword()));

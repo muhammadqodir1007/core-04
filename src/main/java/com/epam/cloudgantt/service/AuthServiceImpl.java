@@ -39,6 +39,9 @@ public class AuthServiceImpl implements AuthService {
     @Value("${spring.mail.conformEmailForResetForgottenPasswordURL}")
     private String conformEmailForResetForgottenPasswordURL;
 
+
+
+
     public AuthServiceImpl(UserRepository userRepository,
                            UserMapper userMapper,
                            @Lazy PasswordEncoder passwordEncoder,
@@ -88,10 +91,7 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
 
-
-        String conformEmailForSignUpURL = "api/v1/auth/confirm-email/";
-        String confirmLinkIPAndPort = "http://localhost:3000/";
-        mailService.sendEmailForSignUpConfirmation(user.getEmail(), MessageByLang.getMessage("SUBJECT"), verificationCode);
+        mailService.sendEmailForSignUpConfirmation(user.getEmail(),  verificationCode);
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("OPEN_YOUR_EMAIL_TO_CONFORM_IT")));
     }
 
@@ -183,7 +183,7 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
 
-        mailService.sendEmailForForForgotPassword(email, verificationCode, conformEmailForResetForgottenPasswordURL);
+        mailService.sendEmailForForForgotPassword(email, verificationCode);
 
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("SUCCESSFULLY_SEND_CODE_TO_EMAIL")));
     }

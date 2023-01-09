@@ -36,6 +36,23 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers(AppConstants.OPEN_PAGES).permitAll()
                                 .requestMatchers(AuthController.BASE_PATH + "/confirm-email/{verificationCode}").permitAll()
+                                .requestMatchers("/*",
+                                        "/robots.txt",
+                                        "/sitemap.xml",
+                                        "/favicon.ico",
+                                        "/*/*.png",
+                                        "/*/*.gif",
+                                        "/*/*.svg",
+                                        "/*/*.jpg",
+                                        "/*/*.html",
+                                        "/*/*.css",
+                                        "/*/*.js",
+                                        "/swagger-ui.html",
+                                        "/swagger-resources/**",
+                                        "/v2/**",
+                                        "/csrf",
+                                        "/webjars/*")
+                                .permitAll()
                                 .anyRequest().permitAll())
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthProvider)

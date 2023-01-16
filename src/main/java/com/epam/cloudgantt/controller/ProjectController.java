@@ -5,6 +5,7 @@ import com.epam.cloudgantt.payload.ProjectResponseDTO;
 import com.epam.cloudgantt.util.AppConstants;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
@@ -15,4 +16,8 @@ public interface ProjectController {
 
     @DeleteMapping("delete-empty/{id}")
     ApiResult<ProjectResponseDTO> deleteEmptyProject(@PathVariable UUID id);
+
+    @PostMapping(BASE_PATH)
+    String createNewProject(CreateProjectDTO createProjectDTO);
+
 }

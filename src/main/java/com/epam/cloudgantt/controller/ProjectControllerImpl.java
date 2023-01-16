@@ -22,5 +22,9 @@ public class ProjectControllerImpl implements ProjectController {
     public ApiResult<ProjectResponseDTO> deleteEmptyProject(UUID id) {
         return projectService.delete(id);
     }
-}
 
+    @Override
+    public String createNewProject(CreateProjectDTO createProjectDTO) {
+        return projectService.createNewProject(createProjectDTO);
+    }
+}

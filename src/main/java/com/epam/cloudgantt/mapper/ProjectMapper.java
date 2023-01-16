@@ -8,7 +8,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ProjectMapper {
     ProjectResponseDTO mapProjectToProjectResponseDTO(Project project);
-}
 
     Project mapCreateProjectDTOToProject(CreateProjectDTO createProjectDTO);
 

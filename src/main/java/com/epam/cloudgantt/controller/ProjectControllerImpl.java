@@ -1,6 +1,7 @@
 package com.epam.cloudgantt.controller;
 
 import com.epam.cloudgantt.payload.ApiResult;
+import com.epam.cloudgantt.payload.CreateProjectDTO;
 import com.epam.cloudgantt.payload.ProjectResponseDTO;
 import com.epam.cloudgantt.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class ProjectControllerImpl implements ProjectController {
     }
 
     @Override
+
     public String createNewProject(CreateProjectDTO createProjectDTO) {
         return projectService.createNewProject(createProjectDTO);
     }

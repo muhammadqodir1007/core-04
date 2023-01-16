@@ -1,6 +1,7 @@
 package com.epam.cloudgantt.controller;
 
 import com.epam.cloudgantt.payload.ApiResult;
+import com.epam.cloudgantt.payload.CreateProjectDTO;
 import com.epam.cloudgantt.payload.ProjectResponseDTO;
 import com.epam.cloudgantt.util.AppConstants;
 import org.springframework.web.bind.annotation.DeleteMapping;

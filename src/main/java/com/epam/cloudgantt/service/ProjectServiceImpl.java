@@ -1,18 +1,24 @@
 package com.epam.cloudgantt.service;
 
+import com.epam.cloudgantt.config.MessageByLang;
+import com.epam.cloudgantt.entity.Project;
+import com.epam.cloudgantt.exceptions.RestException;
+import com.epam.cloudgantt.mapper.ProjectMapper;
 import com.epam.cloudgantt.payload.ApiResult;
+import com.epam.cloudgantt.payload.CreateProjectDTO;
 import com.epam.cloudgantt.payload.ProjectResponseDTO;
 import com.epam.cloudgantt.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
-
+    private final ProjectMapper projectMapper;
 
     @Override
     public ApiResult<ProjectResponseDTO> delete(UUID id) {
@@ -20,29 +26,9 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.deleteById(id);
             return ApiResult.successResponse(new ProjectResponseDTO("Project was successfully deleted."));
         } else return ApiResult.errorResponseWithData(new ProjectResponseDTO("Project does not exist."));
-import com.epam.cloudgantt.config.MessageByLang;
-import com.epam.cloudgantt.entity.Project;
-import com.epam.cloudgantt.exceptions.RestException;
-import com.epam.cloudgantt.mapper.ProjectMapper;
-import com.epam.cloudgantt.payload.ApiResult;
-import com.epam.cloudgantt.payload.AuthResDTO;
-import com.epam.cloudgantt.payload.CreateProjectDTO;
-import com.epam.cloudgantt.repository.ProjectRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.Objects;
-
-@Service
-public class ProjectServiceImpl implements ProjectService {
-
-    private final ProjectRepository projectRepository;
-
-    private final ProjectMapper projectMapper;
-
-    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper) {
-        this.projectRepository = projectRepository;
-        this.projectMapper = projectMapper;
     }
+
+
 
     @Override
     public String createNewProject(CreateProjectDTO createProjectDTO) {

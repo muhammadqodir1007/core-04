@@ -28,7 +28,6 @@ import static com.epam.cloudgantt.util.AppConstants.EMAIL_REGEX;
 import static com.epam.cloudgantt.util.AppConstants.PASSWORD_REGEX;
 
 @Service
-
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;

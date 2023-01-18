@@ -1,0 +1,1 @@
+DROP INDEX if exists uk_custom_field_name_and_table_name;

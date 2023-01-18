@@ -1,18 +1,24 @@
 package com.epam.cloudgantt.controller;
 
+import com.epam.cloudgantt.payload.ApiResult;
 import com.epam.cloudgantt.payload.CreateProjectDTO;
+import com.epam.cloudgantt.payload.ProjectResponseDTO;
 import com.epam.cloudgantt.util.AppConstants;
-import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.UUID;
 
 @RequestMapping(value = ProjectController.BASE_PATH)
 public interface ProjectController {
-
     String BASE_PATH = AppConstants.BASE_PATH + "project/";
 
-    @PostMapping()
-    String createNewProject(@RequestBody @Valid CreateProjectDTO createProjectDTO);
+    @DeleteMapping("delete-empty/{id}")
+    ApiResult<ProjectResponseDTO> deleteEmptyProject(@PathVariable UUID id);
+
+    @PostMapping(BASE_PATH)
+    String createNewProject(CreateProjectDTO createProjectDTO);
 
 }

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: my_idx
+      author: postgres
+      validCheckSum: any
+      runAlways: false
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: changelog/idx/indexes.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+            stripComments: false
+            endDelimiter: \nGO

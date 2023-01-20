@@ -1,13 +1,12 @@
 package com.epam.cloudgantt.controller;
 
-import com.epam.cloudgantt.payload.ApiResult;
-import com.epam.cloudgantt.payload.CreateProjectDTO;
-import com.epam.cloudgantt.payload.ProjectResponseDTO;
-import com.epam.cloudgantt.payload.UpdateProjectDTO;
+import com.epam.cloudgantt.entity.User;
+import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -27,12 +26,17 @@ public class ProjectControllerImpl implements ProjectController {
 
     @Override
 
-    public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO) {
-        return projectService.createNewProject(createProjectDTO);
+    public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user) {
+        return projectService.createNewProject(createProjectDTO,user);
     }
 
     @Override
-    public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO) {
-        return projectService.updateProjectName(updateProjectDTO);
+    public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user) {
+        return projectService.updateProjectName(updateProjectDTO, user);
+    }
+
+    @Override
+    public ApiResult<List<ProjectDTO>> myProjects(User user) {
+        return projectService.myProjects(user);
     }
 }

@@ -5,19 +5,17 @@ import com.epam.cloudgantt.entity.Project;
 import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.mapper.ProjectMapper;
-import com.epam.cloudgantt.mapper.UserMapper;
-import com.epam.cloudgantt.payload.ApiResult;
-import com.epam.cloudgantt.payload.CreateProjectDTO;
-import com.epam.cloudgantt.payload.ProjectResponseDTO;
-import com.epam.cloudgantt.payload.UpdateProjectDTO;
+import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.ProjectRepository;
 import com.epam.cloudgantt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +23,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectMapper projectMapper;
-    private final UserMapper userMapper;
 
     @Override
     public ApiResult<ProjectResponseDTO> delete(UUID id) {
@@ -35,44 +32,40 @@ public class ProjectServiceImpl implements ProjectService {
         } else return ApiResult.errorResponseWithData(new ProjectResponseDTO("Project does not exist."));
     }
 
-    @Override
-    public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO) {
-        UUID projectId = updateProjectDTO.getId();
-        Project project;
-        Optional<Project> optionalProject= projectRepository.findById(projectId);
-        if(optionalProject.isPresent()) {
-            project= optionalProject.get();
-            if (project.getUser().getId().equals(updateProjectDTO.getUserId())){
-                project.setName(updateProjectDTO.getName());
-            } else {
-                return ApiResult.errorResponseWithData(new ProjectResponseDTO("You are not allowed to rename."));
-            }
-            projectRepository.save(project);
-            return ApiResult.successResponse(new ProjectResponseDTO("Project_Name was successfully edited."));
-        } else return ApiResult.errorResponseWithData(new ProjectResponseDTO("Project does not exist."));
-    }
-
 
     @Override
-    public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO) {
+    public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user) {
 
-        if (Objects.isNull(createProjectDTO)) {
+        if (Objects.isNull(createProjectDTO))
             throw RestException.restThrow(MessageByLang.getMessage("PARAMETER_MUST_NOT_BE_NULL"));
-        }
 
         Project project = projectMapper.mapCreateProjectDTOToProject(createProjectDTO);
-        Optional<User> user =userRepository.findById(createProjectDTO.getUserId());
-
         project.setName(createProjectDTO.getName());
-        if(user.isPresent()) {
-        project.setUser(user.get());
-        } else {
-            return ApiResult.errorResponseWithData(new ProjectResponseDTO("User does not exist"));
-        }
+        project.setUser(user);
         projectRepository.save(project);
 
         return ApiResult.successResponse(new ProjectResponseDTO("Project was successfully created."));
     }
 
+    @Override
+    public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user) {
+        Project project = projectRepository.findById(updateProjectDTO.getId()).orElseThrow(() -> RestException.restThrow("Project does not exist."));
 
+        if (!project.getUser().equals(user))
+            throw RestException.restThrow("You are not allowed to rename.");
+
+        project.setName(updateProjectDTO.getName());
+        projectRepository.save(project);
+        return ApiResult.successResponse(new ProjectResponseDTO("Project_Name was successfully edited."));
+    }
+
+    @Override
+    public ApiResult<List<ProjectDTO>> myProjects(User user) {
+        List<Project> projects = projectRepository.findAllByUser(user);
+        return ApiResult.successResponse(projects.stream().map(this::mapProjectToProjectDTO).collect(Collectors.toList()));
+    }
+
+    private ProjectDTO mapProjectToProjectDTO(Project project) {
+        return new ProjectDTO(project.getId(), project.getName());
+    }
 }

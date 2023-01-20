@@ -3,6 +3,7 @@ package com.epam.cloudgantt.controller;
 import com.epam.cloudgantt.payload.ApiResult;
 import com.epam.cloudgantt.payload.CreateProjectDTO;
 import com.epam.cloudgantt.payload.ProjectResponseDTO;
+import com.epam.cloudgantt.payload.UpdateProjectDTO;
 import com.epam.cloudgantt.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +27,12 @@ public class ProjectControllerImpl implements ProjectController {
 
     @Override
 
-    public String createNewProject(CreateProjectDTO createProjectDTO) {
+    public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO) {
         return projectService.createNewProject(createProjectDTO);
+    }
+
+    @Override
+    public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO) {
+        return projectService.updateProjectName(updateProjectDTO);
     }
 }

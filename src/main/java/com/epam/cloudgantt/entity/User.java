@@ -1,9 +1,7 @@
 package com.epam.cloudgantt.entity;
 
 import com.epam.cloudgantt.entity.template.AbsUUIDEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -35,6 +33,9 @@ public class User extends AbsUUIDEntity implements UserDetails {
     private boolean accountNonLocked = true;
 
     private boolean credentialsNonExpired = true;
+
+    @OneToOne(mappedBy = "user")
+    private Project project;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

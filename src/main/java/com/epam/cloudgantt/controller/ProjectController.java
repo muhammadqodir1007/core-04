@@ -19,19 +19,24 @@ public interface ProjectController {
     String UPDATE_PATH = "update";
     String DELETE_PATH = "delete-empty/{id}";
     String MY_PROJECTS_PATH = "my-projects";
+    String MY_PROJECT_BY_ID_PATH = "my-project-by-id/{id}";
 
     @DeleteMapping(value = DELETE_PATH)
-    ApiResult<ProjectResponseDTO> deleteEmptyProject(@PathVariable UUID id);
+    ApiResult<?> deleteEmptyProject(@PathVariable UUID id);
 
     @PostMapping(value = CREATE_PATH)
-    ApiResult<ProjectResponseDTO> createNewProject(@RequestBody @Valid CreateProjectDTO createProjectDTO,
-                                                   @CurrentUser User user);
+    ApiResult<?> createNewProject(@RequestBody @Valid CreateProjectDTO createProjectDTO,
+                                  @CurrentUser User user);
 
     @PutMapping(value = UPDATE_PATH)
     ApiResult<ProjectResponseDTO> updateProjectName(@RequestBody @Valid UpdateProjectDTO updateProjectDTO,
                                                     @CurrentUser User user);
 
     @GetMapping(value = MY_PROJECTS_PATH)
-    ApiResult<List<ProjectDTO>>myProjects(@CurrentUser User user);
+    ApiResult<List<ProjectDTO>> myProjects(@CurrentUser User user);
+
+
+    @GetMapping(value = MY_PROJECT_BY_ID_PATH)
+    ApiResult<ProjectDTO> myProjectById(@PathVariable UUID id, @CurrentUser User user);
 
 }

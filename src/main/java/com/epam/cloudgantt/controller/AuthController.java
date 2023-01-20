@@ -39,4 +39,9 @@ public interface AuthController {
 
     @PostMapping(value = RESET_FORGOTTEN_PASSWORD_PATH)
     ApiResult<AuthResDTO> resetForgottenPassword(@Valid @RequestBody ResetForgottenPasswordDTO resetForgottenPasswordDTO);
+
+    @GetMapping("/test")
+    default ApiResult<String> bla() {
+        return ApiResult.successResponse("sdasd");
+    }
 }

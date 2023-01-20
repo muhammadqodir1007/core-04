@@ -28,14 +28,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf()
-                .disable()
                 .cors()
+                .and()
+                .csrf()
                 .disable()
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers(AppConstants.OPEN_PAGES).permitAll()
-                                .requestMatchers(AuthController.BASE_PATH + "/confirm-email/{verificationCode}").permitAll()
+                                .requestMatchers(AppConstants.OPEN_PAGES)
+                                .permitAll()
                                 .requestMatchers("/*",
                                         "/robots.txt",
                                         "/sitemap.xml",
@@ -53,7 +53,9 @@ public class SecurityConfig {
                                         "/csrf",
                                         "/webjars/*")
                                 .permitAll()
-                                .anyRequest().permitAll())
+                                .requestMatchers("/api/**")
+                                .authenticated()
+                )
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthProvider)
                 .and()

@@ -25,16 +25,16 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
 
     @Override
-    public ApiResult<ProjectResponseDTO> delete(UUID id) {
-        if (projectRepository.findById(id).isPresent()) {
-            projectRepository.deleteById(id);
-            return ApiResult.successResponse(new ProjectResponseDTO("Project was successfully deleted."));
-        } else return ApiResult.errorResponseWithData(new ProjectResponseDTO("Project does not exist."));
+    public ApiResult<?> delete(UUID id) {
+        if (!projectRepository.existsById(id))
+            throw RestException.restThrow("Project does not exist.");
+        projectRepository.deleteById(id);
+        return ApiResult.successResponse("Project was successfully deleted.");
     }
 
 
     @Override
-    public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user) {
+    public ApiResult<?> createNewProject(CreateProjectDTO createProjectDTO, User user) {
 
         if (Objects.isNull(createProjectDTO))
             throw RestException.restThrow(MessageByLang.getMessage("PARAMETER_MUST_NOT_BE_NULL"));
@@ -44,7 +44,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setUser(user);
         projectRepository.save(project);
 
-        return ApiResult.successResponse(new ProjectResponseDTO("Project was successfully created."));
+        return ApiResult.successResponse("Project was successfully created");
     }
 
     @Override
@@ -63,6 +63,13 @@ public class ProjectServiceImpl implements ProjectService {
     public ApiResult<List<ProjectDTO>> myProjects(User user) {
         List<Project> projects = projectRepository.findAllByUser(user);
         return ApiResult.successResponse(projects.stream().map(this::mapProjectToProjectDTO).collect(Collectors.toList()));
+    }
+
+    @Override
+    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
+        Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project not found"));
+        ProjectDTO projectDTO = mapProjectToProjectDTO(project);
+        return ApiResult.successResponse(projectDTO);
     }
 
     private ProjectDTO mapProjectToProjectDTO(Project project) {

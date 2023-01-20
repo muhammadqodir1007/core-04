@@ -20,14 +20,14 @@ public class ProjectControllerImpl implements ProjectController {
 
 
     @Override
-    public ApiResult<ProjectResponseDTO> deleteEmptyProject(UUID id) {
+    public ApiResult<?> deleteEmptyProject(UUID id) {
         return projectService.delete(id);
     }
 
     @Override
 
-    public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user) {
-        return projectService.createNewProject(createProjectDTO,user);
+    public ApiResult<?> createNewProject(CreateProjectDTO createProjectDTO, User user) {
+        return projectService.createNewProject(createProjectDTO, user);
     }
 
     @Override
@@ -38,5 +38,10 @@ public class ProjectControllerImpl implements ProjectController {
     @Override
     public ApiResult<List<ProjectDTO>> myProjects(User user) {
         return projectService.myProjects(user);
+    }
+
+    @Override
+    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
+        return projectService.myProjectById(id,user);
     }
 }

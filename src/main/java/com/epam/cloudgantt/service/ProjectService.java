@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public interface ProjectService {
 
-    ApiResult<?> createNewProject(CreateProjectDTO createProjectDTO, User user);
+    ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user);
 
-    ApiResult<?> delete(UUID id);
+    ApiResult<?> delete(UUID id, User user);
 
     ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user);
 

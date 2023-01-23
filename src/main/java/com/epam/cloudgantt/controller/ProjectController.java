@@ -5,8 +5,6 @@ import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.security.CurrentUser;
 import com.epam.cloudgantt.util.AppConstants;
 import jakarta.validation.Valid;
-import lombok.Getter;
-import org.springframework.aop.target.LazyInitTargetSource;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,10 +20,10 @@ public interface ProjectController {
     String MY_PROJECT_BY_ID_PATH = "my-project-by-id/{id}";
 
     @DeleteMapping(value = DELETE_PATH)
-    ApiResult<?> deleteEmptyProject(@PathVariable UUID id);
+    ApiResult<?> deleteEmptyProject(@PathVariable UUID id , @CurrentUser User user);
 
     @PostMapping(value = CREATE_PATH)
-    ApiResult<?> createNewProject(@RequestBody @Valid CreateProjectDTO createProjectDTO,
+    ApiResult<ProjectResponseDTO> createNewProject(@RequestBody @Valid CreateProjectDTO createProjectDTO,
                                   @CurrentUser User user);
 
     @PutMapping(value = UPDATE_PATH)

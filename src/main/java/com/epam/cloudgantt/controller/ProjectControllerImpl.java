@@ -18,15 +18,13 @@ public class ProjectControllerImpl implements ProjectController {
         this.projectService = projectService;
     }
 
-
     @Override
-    public ApiResult<?> deleteEmptyProject(UUID id) {
-        return projectService.delete(id);
+    public ApiResult<?> deleteEmptyProject(UUID id, User user) {
+        return projectService.delete(id, user);
     }
 
     @Override
-
-    public ApiResult<?> createNewProject(CreateProjectDTO createProjectDTO, User user) {
+    public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user) {
         return projectService.createNewProject(createProjectDTO, user);
     }
 

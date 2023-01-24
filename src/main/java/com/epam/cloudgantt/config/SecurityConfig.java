@@ -28,15 +28,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf()
-                .disable()
                 .cors()
+                .and()
+                .csrf()
                 .disable()
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers(AppConstants.OPEN_PAGES).permitAll()
-                                .requestMatchers(AuthController.BASE_PATH + "/confirm-email/{verificationCode}").permitAll()
-                                .anyRequest().permitAll())
+                                .requestMatchers(AppConstants.OPEN_PAGES)
+                                .permitAll()
+                                .requestMatchers("/*",
+                                        "/robots.txt",
+                                        "/sitemap.xml",
+                                        "/favicon.ico",
+                                        "/*/*.png",
+                                        "/*/*.gif",
+                                        "/*/*.svg",
+                                        "/*/*.jpg",
+                                        "/*/*.html",
+                                        "/*/*.css",
+                                        "/*/*.js",
+                                        "/swagger-ui.html",
+                                        "/swagger-resources/**",
+                                        "/v2/**",
+                                        "/csrf",
+                                        "/webjars/*")
+                                .permitAll()
+                                .requestMatchers("/api/**")
+                                .authenticated()
+                )
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthProvider)
                 .and()

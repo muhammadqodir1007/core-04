@@ -21,12 +21,13 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.epam.cloudgantt.util.AppConstants.EMAIL_REGEX;
 import static com.epam.cloudgantt.util.AppConstants.PASSWORD_REGEX;
 
 @Service
-
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -38,8 +39,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Value("${spring.mail.conformEmailForResetForgottenPasswordURL}")
     private String conformEmailForResetForgottenPasswordURL;
-
-
 
 
     public AuthServiceImpl(UserRepository userRepository,
@@ -74,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
             return ApiResult.errorResponseWithData(
                     new AuthResDTO(false, MessageByLang.getMessage("PASSWORD_REGEX_MSG")));
 
-        if (!signUpDTO.getEmail().matches(EMAIL_REGEX))
+        if (!emailValid(signUpDTO.getEmail()))
             return ApiResult.errorResponseWithData(new AuthResDTO(true,
                     MessageByLang.getMessage("EMAIL_MUST_BE_VALID_OUR_PATTERN")));
 
@@ -91,7 +90,7 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationCode(verificationCode);
         userRepository.save(user);
 
-        mailService.sendEmailForSignUpConfirmation(user.getEmail(),  verificationCode);
+        mailService.sendEmailForSignUpConfirmation(user.getEmail(), verificationCode);
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("OPEN_YOUR_EMAIL_TO_CONFORM_IT")));
     }
 
@@ -158,9 +157,12 @@ public class AuthServiceImpl implements AuthService {
 
 
         User user = optionalUser.get();
-        user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
-        userRepository.save(user);
+        if (!Objects.equals(user.getVerificationCode(), changePasswordDTO.getVerificationCode()))
+            return ApiResult.errorResponseWithData(AuthResDTO.wrongVerificationCode(MessageByLang.getMessage("INVALID_VERIFICATION_CODE")));
 
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
+        user.setVerificationCode(null);
+        userRepository.save(user);
         return ApiResult.successResponse(new AuthResDTO(MessageByLang.getMessage("PASSWORD_SUCCESSFULLY_CHANGED")));
     }
 
@@ -199,7 +201,7 @@ public class AuthServiceImpl implements AuthService {
 
         Optional<User> userOptional = userRepository.findByVerificationCode(resetForgottenPasswordDTO.getVerificationCode());
         if (userOptional.isEmpty())
-            return ApiResult.errorResponseWithData(AuthResDTO.wrongVerificationCode());
+            return ApiResult.errorResponseWithData(AuthResDTO.wrongVerificationCode(MessageByLang.getMessage("INVALID_VERIFICATION_CODE")));
 
         User user = userOptional.get();
         user.setPassword(passwordEncoder.encode(resetForgottenPasswordDTO.getPassword()));
@@ -209,12 +211,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
 
-    /**
-     * SEND TO EMAIL MESSAGE ABOUT VERIFICATION ACCOUNT
-     *
-     * @param email            String
-     * @param verificationCode String
-     */
-
+    private boolean emailValid(String email) {
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches() && !email.endsWith("epam.com");
+    }
 
 }

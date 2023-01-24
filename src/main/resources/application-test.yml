@@ -1,0 +1,37 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: root123
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    change-log: classpath:liquibase/master.yaml
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: cloudgantt77@gmail.com
+    password: eketcrixnjrpvzwn
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    iPAndPort: http://localhost:8081/
+    conformEmailForSignUpURL: confirm-email/
+    conformEmailForResetForgottenPasswordURL: change-password/
+
+app:
+  jwt:
+    access:
+      key: $KC@RusNYQZag9nIR&EaFiD598Sg5*rinwtKE%CiVLBkj7ZztZ
+      expiredAt: 86400000
+    refresh:
+      key: 2sn21%z3F^^6f^Bn#RdOseMAkJElnqR289#q9uuVd8^X8*Q1Yv
+      expiredAt: 604800000

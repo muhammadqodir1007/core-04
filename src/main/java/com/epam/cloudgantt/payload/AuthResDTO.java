@@ -34,7 +34,9 @@ public class AuthResDTO {
     }
 
 
-    public static AuthResDTO wrongVerificationCode(){
-        return new AuthResDTO();
+    public static AuthResDTO wrongVerificationCode(String message){
+        AuthResDTO authResDTO = new AuthResDTO();
+        authResDTO.setMessage(message);
+        return authResDTO;
     }
 }

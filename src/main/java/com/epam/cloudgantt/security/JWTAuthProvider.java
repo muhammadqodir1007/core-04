@@ -28,7 +28,7 @@ public class JWTAuthProvider implements AuthenticationEntryPoint {
         ApiResult<ErrorData> errorDataApiResult = ApiResult.errorResponse("Forbidden", 403);
         response.getWriter().write(gson.toJson(errorDataApiResult));
         response.setStatus(403);
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     }
 }

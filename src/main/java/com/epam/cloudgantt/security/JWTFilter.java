@@ -49,18 +49,19 @@ public class JWTFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
 
-        if (request.getMethod().equals("OPTIONS")) {
-            response.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-            response.setHeader("Access-Control-Allow-Methods", ALLOWED_METHODS);
-            response.setHeader("Access-Control-Max-Age", MAX_AGE); //OPTION how long the results of a preflight request (that is the information contained in the Access-Control-Allow-Methods and Access-Control-Allow-Headers headers) can be cached.
-            response.setHeader("Access-Control-Allow-Headers", ALLOWED_HEADERS);
-            return;
-        }
+//        if (request.getMethod().equals("OPTIONS")) {
+//            response.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+//            response.setHeader("Access-Control-Allow-Methods", ALLOWED_METHODS);
+//            response.setHeader("Access-Control-Max-Age", MAX_AGE); //OPTION how long the results of a preflight request (that is the information contained in the Access-Control-Allow-Methods and Access-Control-Allow-Headers headers) can be cached.
+//            response.setHeader("Access-Control-Allow-Headers", ALLOWED_HEADERS);
+//            return;
+//        }
             try {
                 setSecurityContext(request);
             } catch (Exception ignored) {
 
             }
+//        response.setCharacterEncoding("UTF-8");
         filterChain.doFilter(request, response);
     }
 

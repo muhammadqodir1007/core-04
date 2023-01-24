@@ -35,7 +35,7 @@ class ProjectControllerImplTest {
 
     @BeforeEach
     void setUp() {
-        createProjectDTO = new CreateProjectDTO(NAME, USER_ID);
+        createProjectDTO = new CreateProjectDTO(NAME);
     }
     @Test
     void createNewProjectTest() {

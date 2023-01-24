@@ -1,12 +1,9 @@
 package com.epam.cloudgantt.payload;
 
-import com.epam.cloudgantt.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Getter
 @AllArgsConstructor

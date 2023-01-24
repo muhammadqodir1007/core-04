@@ -8,10 +8,10 @@ spring:
     password: root123
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   liquibase:
-    change-log: classpath:liquibase/master.yaml
+    change-log: classpath:db/master.yaml
   mail:
     host: smtp.gmail.com
     port: 587

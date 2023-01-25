@@ -2,8 +2,13 @@ package com.epam.cloudgantt.controller;
 
 import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.service.AuthService;
+import com.epam.cloudgantt.service.CsvTemplateService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
 
 @RestController
 @Slf4j
@@ -11,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthControllerImpl implements AuthController {
 
     private final AuthService authService;
+    private final CsvTemplateService csvTemplateService;
 
-    public AuthControllerImpl(AuthService authService) {
+    public AuthControllerImpl(AuthService authService, CsvTemplateService csvTemplateService) {
         this.authService = authService;
+        this.csvTemplateService = csvTemplateService;
     }
 
     @Override
@@ -72,5 +79,16 @@ public class AuthControllerImpl implements AuthController {
         ApiResult<AuthResDTO> result = authService.resetForgottenPassword(resetForgottenPasswordDTO);
         log.info("Reset forgotten password method entered.");
         return result;
+    }
+
+    @Override
+    public void exportCSV(HttpServletResponse response) throws IOException {
+
+        log.info("export method is working");
+        String filename = "GanttTemplate.csv";
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        csvTemplateService.exportCSV(response.getWriter());
+
     }
 }

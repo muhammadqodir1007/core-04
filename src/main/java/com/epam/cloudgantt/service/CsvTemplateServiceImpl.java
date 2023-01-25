@@ -21,6 +21,7 @@ public class CsvTemplateServiceImpl implements CsvTemplateService {
 
     @Override
     public void exportCSV(Writer writer) throws IOException {
+        System.out.println(csvTemplateRepository.findAll());
         List<CsvTemplate> all = csvTemplateRepository.findAll();
         List<String> list = all.stream().map(CsvTemplate::getNameOfColumn).toList();
 

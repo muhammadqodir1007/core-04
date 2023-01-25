@@ -2,8 +2,11 @@ package com.epam.cloudgantt.controller;
 
 import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.util.AppConstants;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequestMapping(value = AuthController.BASE_PATH)
 public interface AuthController {
@@ -14,6 +17,7 @@ public interface AuthController {
     String RESEND_VERIFY_ACCOUNT_CODE_PATH = "resend-verification-code";
     String FORGOT_PASSWORD_PATH = "forgot-password";
     String RESET_PASSWORD_PATH = "reset-password";
+    String EXPORT_TEMPLATE="export-template";
 
     String RESET_FORGOTTEN_PASSWORD_PATH = "reset-forgotten-password";
 
@@ -23,6 +27,8 @@ public interface AuthController {
 
     @PostMapping(value = SIGN_IN_PATH)
     ApiResult<TokenDTO> signIn(@Valid @RequestBody SignInDTO signInDTO);
+
+
 
 
     @GetMapping("confirm-email/{verificationCode}")
@@ -40,8 +46,6 @@ public interface AuthController {
     @PostMapping(value = RESET_FORGOTTEN_PASSWORD_PATH)
     ApiResult<AuthResDTO> resetForgottenPassword(@Valid @RequestBody ResetForgottenPasswordDTO resetForgottenPasswordDTO);
 
-    @GetMapping("/test")
-    default ApiResult<String> bla() {
-        return ApiResult.successResponse("sdasd");
-    }
+    @GetMapping(value = EXPORT_TEMPLATE)
+    void exportCSV(HttpServletResponse response) throws IOException;
 }

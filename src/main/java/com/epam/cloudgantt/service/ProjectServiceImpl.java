@@ -45,6 +45,7 @@ public class ProjectServiceImpl implements ProjectService {
         return ApiResult.successResponse("Project was successfully created");
     }
 
+
     @Override
     public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user) {
         if (updateProjectDTO == null)
@@ -81,5 +82,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     private ProjectDTO mapProjectToProjectDTO(Project project) {
         return new ProjectDTO(project.getId(), project.getName());
+    }
+
+    @Override
+    public ApiResult<ProjectResponseDTO> uploadCSV(InputStream inputStream, User user) {
+        return null;
     }
 }

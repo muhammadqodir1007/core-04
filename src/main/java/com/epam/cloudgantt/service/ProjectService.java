@@ -12,6 +12,9 @@ public interface ProjectService {
 
     ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user);
 
+    ApiResult<ProjectResponseDTO> uploadCSV(InputStream inputStream, User user);
+
+
     ApiResult<?> delete(UUID id, User user);
 
     ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user);

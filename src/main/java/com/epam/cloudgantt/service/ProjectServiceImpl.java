@@ -9,6 +9,7 @@ import com.epam.cloudgantt.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,6 +44,7 @@ public class ProjectServiceImpl implements ProjectService {
         return ApiResult.successResponse("Project was successfully created");
     }
 
+
     @Override
     public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user) {
         if (updateProjectDTO == null)
@@ -72,5 +74,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     private ProjectDTO mapProjectToProjectDTO(Project project) {
         return new ProjectDTO(project.getId(), project.getName());
+    }
+
+    @Override
+    public ApiResult<ProjectResponseDTO> uploadCSV(InputStream inputStream, User user) {
+        return null;
     }
 }

@@ -18,9 +18,11 @@ import java.io.IOException;
 public interface CsvTemplateController {
 
 
-    String UPLOAD_PATH = AppConstants.BASE_PATH + "upload";
+    String UPLOAD_PATH ="upload";
 
-    @GetMapping("/export-template")
+    String EXPORT_TEMPLATE_PATH ="export-template";
+
+    @GetMapping(value = EXPORT_TEMPLATE_PATH)
     void exportCSV(HttpServletResponse response) throws IOException;
 
     @PostMapping(value = UPLOAD_PATH)

@@ -6,7 +6,9 @@ import com.epam.cloudgantt.security.CurrentUser;
 import com.epam.cloudgantt.util.AppConstants;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +17,8 @@ public interface ProjectController {
     String BASE_PATH = AppConstants.BASE_PATH + "project/";
     String CREATE_PATH = "create";
     String UPDATE_PATH = "update";
+
+    String UPLOAD_CSV_PATH = "upload-csv";
     String DELETE_PATH = "delete-empty/{id}";
     String MY_PROJECTS_PATH = "my-projects";
     String MY_PROJECT_BY_ID_PATH = "my-project-by-id/{id}";
@@ -36,5 +40,8 @@ public interface ProjectController {
 
     @GetMapping(value = MY_PROJECT_BY_ID_PATH)
     ApiResult<ProjectDTO> myProjectById(@PathVariable UUID id, @CurrentUser User user);
+
+    @PostMapping(value = UPLOAD_CSV_PATH)
+    ApiResult<ProjectResponseDTO> uploadCSV(@RequestParam("file")MultipartFile file, @CurrentUser User user) throws IOException;
 
 }

@@ -9,6 +9,7 @@ import com.epam.cloudgantt.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -68,6 +69,11 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project not found"));
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
         return ApiResult.successResponse(projectDTO);
+    }
+
+    @Override
+    public ApiResult<ProjectResponseDTO> uploadCSVFile(InputStream inputStream, User user) {
+        return null;
     }
 
     private ProjectDTO mapProjectToProjectDTO(Project project) {

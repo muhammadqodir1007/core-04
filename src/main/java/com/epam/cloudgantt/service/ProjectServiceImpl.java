@@ -1,25 +1,38 @@
 package com.epam.cloudgantt.service;
 
 import com.epam.cloudgantt.entity.Project;
+import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.mapper.ProjectMapper;
+import com.epam.cloudgantt.parser.CsvParser;
 import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.ProjectRepository;
+import com.epam.cloudgantt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.UUID;
+
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.epam.cloudgantt.parser.CsvValidator.*;
+
 
 @Service
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
+    private final UserRepository userRepository;
 
     @Override
     public ApiResult<?> delete(UUID id, User user) {
@@ -70,14 +83,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
         Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project not found"));
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
-        //todo taskDTO
-        projectDTO.setTasks(null);
         return ApiResult.successResponse(projectDTO);
-    }
-
-    @Override
-    public ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user) {
-        return null;
     }
 
     private ProjectDTO mapProjectToProjectDTO(Project project) {
@@ -85,7 +91,23 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ApiResult<ProjectResponseDTO> uploadCSV(InputStream inputStream, User user) {
-        return null;
+    @Transactional
+    public ApiResult<ProjectResponseDTO> uploadCSV(InputStream inputStream, User user) throws IOException {
+        List<Task> tasks = CsvParser.parseCsvFile(inputStream);
+        tasks.forEach(task -> {
+            isRequiredFormatDate((task.getBeginDate()));
+            isBeginDateBeforeEndDate(task.getBeginDate(), task.getEndDate());
+            cutTextToMaxLength(task);
+        });
+        checkSectionNames(tasks);
+        tasks = sortAndGet50(tasks);
+        Project project = new Project();
+        project.setListOfTasks(tasks);
+        project.setName("name");
+        Optional<User> user1 = userRepository.findByEmail("hakobianmels@gmail.com");
+        user1.get().setProject(project);
+        project.setUser(user1.get());
+        projectRepository.save(project);
+        return ApiResult.successResponse(new ProjectResponseDTO("kayf"));
     }
 }

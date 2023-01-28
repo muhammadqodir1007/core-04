@@ -34,8 +34,13 @@ public class CsvTemplateControllerImpl implements CsvTemplateController {
 
     @Override
     public ApiResult<ProjectResponseDTO> uploadCSV(MultipartFile file, User user) throws Exception {
+        checkFileSize(file);
         InputStream inputStream = file.getInputStream();
         return projectService.uploadCSV(inputStream, user);
+    }
+
+    private void checkFileSize(MultipartFile file) throws Exception {
+        if(file.getSize() * 0.00000095367432 > 5) throw new Exception();
     }
 }
 

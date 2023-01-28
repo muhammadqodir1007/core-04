@@ -25,8 +25,6 @@ public class CloudGanttExceptionHandler {
     }
 
 
-
-
     @ExceptionHandler(value = RestException.class)
     public ResponseEntity<ApiResult<ErrorData>> handleException(RestException ex) {
         ex.printStackTrace();
@@ -47,6 +45,6 @@ public class CloudGanttExceptionHandler {
                     )
             );
         });
-        return new ResponseEntity<>(ApiResult.errorResponse(errors),HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ApiResult.errorResponse(errors), HttpStatus.BAD_REQUEST);
     }
 }

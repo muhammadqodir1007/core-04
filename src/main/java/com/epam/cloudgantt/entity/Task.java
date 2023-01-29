@@ -16,7 +16,9 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 public class Task extends AbsUUIDEntity {
 
+    @NonNull
     private Long taskNumber;
+    @NonNull
     private String taskName;
     private String sectionName;
     private String description;
@@ -24,6 +26,7 @@ public class Task extends AbsUUIDEntity {
     private String endDate;
     private String assignee;
     private boolean exceededTextAlert;
+    private boolean additionalColumnAlert;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;

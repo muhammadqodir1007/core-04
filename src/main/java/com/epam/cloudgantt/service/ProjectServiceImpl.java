@@ -104,9 +104,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = new Project();
         project.setListOfTasks(tasks);
         project.setName("name");
-        Optional<User> user1 = userRepository.findByEmail("hakobianmels@gmail.com");
-        user1.get().setProject(project);
-        project.setUser(user1.get());
+        project.setUser(user);
         projectRepository.save(project);
         return ApiResult.successResponse(new ProjectResponseDTO("kayf"));
     }

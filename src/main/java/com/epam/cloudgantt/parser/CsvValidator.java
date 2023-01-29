@@ -62,7 +62,7 @@ public class CsvValidator {
             System.out.println("idn nuynna");
             throw new Exception();
         }
-        Collections.sort(tasks, Comparator.comparing(Task::getTaskNumber));
+        tasks.sort(Comparator.comparing(Task::getTaskNumber));
         return tasks.stream().limit(Math.min(tasks.size(), 50)).collect(Collectors.toList());
     }
 

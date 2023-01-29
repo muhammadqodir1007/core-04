@@ -8,4 +8,5 @@ public interface CSVConstants {
     String BEGIN_DATE = "begin_date";
     String END_DATE = "end_date";
     String ASSIGNEE = "assignee";
+    long MAX_FILE_SIZE = 5 * 1024 * 1024;
 }

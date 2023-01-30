@@ -69,6 +69,8 @@ public class ProjectServiceImpl implements ProjectService {
     public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
         Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project not found"));
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
+        //todo taskDTO
+        projectDTO.setTasks(null);
         return ApiResult.successResponse(projectDTO);
     }
 

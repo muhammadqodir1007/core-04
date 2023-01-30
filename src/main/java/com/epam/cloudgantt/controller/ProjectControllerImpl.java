@@ -48,9 +48,7 @@ public class ProjectControllerImpl implements ProjectController {
 
     @Override
     public ApiResult<ProjectResponseDTO> uploadCSV(MultipartFile file, User user) throws IOException {
-        String projectName = file.getOriginalFilename();
-        InputStream inputStream = file.getInputStream();
-        return projectService.uploadCSVFileToCreateProject(inputStream, user, projectName);
+        return projectService.uploadCSVFileToCreateProject(file, user);
     }
 
 

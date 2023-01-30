@@ -8,6 +8,7 @@ import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.List;
@@ -72,7 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(InputStream inputStream, User user, String fileName) {
+    public ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user) {
         return null;
     }
 

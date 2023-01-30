@@ -2,6 +2,7 @@ package com.epam.cloudgantt.service;
 
 import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.payload.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.List;
@@ -19,5 +20,5 @@ public interface ProjectService {
 
     ApiResult<ProjectDTO> myProjectById(UUID id, User user);
 
-    ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(InputStream inputStream, User user2, String fileName);
+    ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user);
 }

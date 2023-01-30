@@ -2,11 +2,9 @@ package com.epam.cloudgantt.service;
 
 import com.epam.cloudgantt.entity.CsvTemplate;
 import com.epam.cloudgantt.repository.CsvTemplateRepository;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
+import com.opencsv.CSVWriter;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
@@ -20,14 +18,13 @@ public class CsvTemplateServiceImpl implements CsvTemplateService {
     CsvTemplateRepository csvTemplateRepository;
 
     @Override
-    public void exportCSV(Writer writer) throws IOException {
+    public void exportCSV(Writer writer) {
         System.out.println(csvTemplateRepository.findAll());
         List<CsvTemplate> all = csvTemplateRepository.findAll();
         List<String> list = all.stream().map(CsvTemplate::getNameOfColumn).toList();
-
-        CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
-        printer.printRecord(String.join(" | ", list));
-
-
+        CSVWriter csvWriter = new CSVWriter(writer);
+        csvWriter.writeNext(list.toArray(new String[0]));
     }
+
+
 }

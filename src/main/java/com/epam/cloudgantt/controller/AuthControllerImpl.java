@@ -77,7 +77,7 @@ public class AuthControllerImpl implements AuthController {
     public ApiResult<AuthResDTO> resetForgottenPassword(ResetForgottenPasswordDTO resetForgottenPasswordDTO) {
         log.info("Reset forgotten password method entered.");
         ApiResult<AuthResDTO> result = authService.resetForgottenPassword(resetForgottenPasswordDTO);
-        log.info("Reset forgotten password method entered.");
+        log.info("Reset forgotten password method exited.");
         return result;
     }
 

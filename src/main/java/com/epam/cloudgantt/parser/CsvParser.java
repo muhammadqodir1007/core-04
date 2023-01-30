@@ -5,30 +5,25 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.epam.cloudgantt.util.CSVConstants.*;
-
 
 public class CsvParser {
     public static List<Task> parseCsvFile(InputStream inputStream) throws IOException {
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
              CSVParser csvParser = new CSVParser(fileReader,
-                     CSVFormat.EXCEL.withDelimiter(',')
-                             .withSkipHeaderRecord(true)
-                             .withTrim()
-                             .withIgnoreEmptyLines(true)
-                             .withQuote('"')
-                             .withIgnoreHeaderCase()
-                             .withHeader(
+                     CSVFormat.Builder.create().setDelimiter(",")
+                             .setSkipHeaderRecord(true)
+                             .setTrim(true)
+                             .setIgnoreEmptyLines(true)
+                             .setQuote('"')
+                             .setIgnoreHeaderCase(true)
+                             .setHeader(
                                      TASK_NUMBER, SECTION_NAME, TASK_NAME, DESCRIPTION,
-                                     BEGIN_DATE, END_DATE, ASSIGNEE))) {
+                                     BEGIN_DATE, END_DATE, ASSIGNEE).build())) {
             List<Task> listOfTasks = new ArrayList<>();
             Iterable<CSVRecord> csvRecords = csvParser.getRecords();
             for (CSVRecord csvRecord : csvRecords) {
@@ -44,6 +39,6 @@ public class CsvParser {
             }
             return listOfTasks;
         }
-
     }
 }
+

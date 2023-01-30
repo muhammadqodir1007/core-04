@@ -19,5 +19,5 @@ public interface ProjectService {
 
     ApiResult<ProjectDTO> myProjectById(UUID id, User user);
 
-    ApiResult<ProjectResponseDTO> uploadCSVFile(InputStream inputStream, User user);
+    ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(InputStream inputStream, User user2, String fileName);
 }

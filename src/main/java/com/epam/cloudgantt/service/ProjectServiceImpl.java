@@ -94,14 +94,15 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public ApiResult<ProjectResponseDTO> uploadCSV(InputStream inputStream, User user) throws IOException {
         List<Task> tasks = CsvParser.parseCsvFile(inputStream);
+        Project project = new Project();
         tasks.forEach(task -> {
             isRequiredFormatDate((task.getBeginDate()));
             isBeginDateBeforeEndDate(task.getBeginDate(), task.getEndDate());
             cutTextToMaxLength(task);
+
         });
         checkSectionNames(tasks);
         tasks = sortAndGet50(tasks);
-        Project project = new Project();
         project.setListOfTasks(tasks);
         project.setName("name");
         project.setUser(user);

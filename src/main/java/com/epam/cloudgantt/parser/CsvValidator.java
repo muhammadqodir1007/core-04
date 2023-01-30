@@ -23,15 +23,18 @@ public class CsvValidator {
         return true;
     }
 
-    public static boolean isBeginDateBeforeEndDate(String begin, String end) {
+    @SneakyThrows
+    public static void isBeginDateBeforeEndDate(String begin, String end) {
         try {
-            final DateFormat dtf = new SimpleDateFormat("yyyy-MMM-dd");
+            final DateFormat dtf = new SimpleDateFormat("dd/MM/yyyy");
             final Date beginDate = dtf.parse(begin);
             final Date endDate = dtf.parse(end);
-            return beginDate.before(endDate);
+            if(!beginDate.before(endDate)) {
+                System.out.println("heta ynge");
+                throw new Exception();
+            }
         } catch (ParseException p) {
-            System.out.println("heta ynge");
-            return false;
+            System.out.println("parsing exception");
         }
     }
 
@@ -71,7 +74,7 @@ public class CsvValidator {
         var blankTextCount = 0;
         var textCount = 0;
         for (Task task : tasks) {
-            if (task.getSectionName().isBlank()) {
+            if (task.getSectionName().isEmpty()) {
                 blankTextCount++;
             } else {
                 textCount++;

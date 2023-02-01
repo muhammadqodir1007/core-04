@@ -2,13 +2,23 @@ package com.epam.cloudgantt.service;
 
 import com.epam.cloudgantt.entity.Project;
 import com.epam.cloudgantt.entity.Task1;
+import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.entity.User;
+import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.mapper.ProjectMapper;
+import com.epam.cloudgantt.parser.CsvParser;
+import com.epam.cloudgantt.parser.CsvValidator;
 import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.ProjectRepository;
+import com.epam.cloudgantt.repository.UserRepository;
+import com.epam.cloudgantt.util.CSVConstants;
 import lombok.RequiredArgsConstructor;
+import static com.epam.cloudgantt.parser.CsvValidator.*;
+
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
@@ -17,13 +27,24 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.epam.cloudgantt.parser.CsvValidator.*;
+
 
 @Service
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
+    private final ErrorData errorData;
     private final ProjectMapper projectMapper;
+    private final UserRepository userRepository;
 
     @Override
     public ApiResult<?> delete(UUID id, User user) {
@@ -46,6 +67,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         return ApiResult.successResponse("Project was successfully created");
     }
+
 
     @Override
     public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user) {
@@ -104,12 +126,24 @@ public class ProjectServiceImpl implements ProjectService {
         return ApiResult.successResponse(projectDTO);
     }
 
-    @Override
-    public ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user) {
-        return null;
-    }
-
     private ProjectDTO mapProjectToProjectDTO(Project project) {
         return new ProjectDTO(project.getId(), project.getName());
+    }
+
+    @Override
+    @Transactional
+    @SneakyThrows
+    public ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user) {
+        if(file.getSize() > CSVConstants.MAX_FILE_SIZE){
+            throw new Exception();
+        }
+        List<Task> tasks = new CsvParser(errorData).parseCsvFile(file.getInputStream());
+        tasks = new CsvValidator(errorData).validateAll(tasks);
+        Project project = new Project();
+        project.setListOfTasks(tasks);
+        project.setName("name");
+        project.setUser(user);
+        projectRepository.save(project);
+        return ApiResult.successResponse(new ProjectResponseDTO(Collections.singletonList("kayf")));
     }
 }

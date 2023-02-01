@@ -36,6 +36,8 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers(AppConstants.OPEN_PAGES)
                                 .permitAll()
+                                .requestMatchers("/api/v1/upload")
+                                .permitAll()
                                 .requestMatchers("/*",
                                         "/robots.txt",
                                         "/sitemap.xml",

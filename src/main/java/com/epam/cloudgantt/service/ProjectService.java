@@ -4,6 +4,7 @@ import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.payload.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;

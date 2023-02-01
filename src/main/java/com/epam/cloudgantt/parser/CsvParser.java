@@ -2,18 +2,17 @@ package com.epam.cloudgantt.parser;
 
 import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.exceptions.ErrorData;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import static com.epam.cloudgantt.util.CSVConstants.*;
 
@@ -34,7 +33,6 @@ public class CsvParser {
                 String headerLine = fileReader.readLine();
                 if (headerLine.replaceAll(",", "").isBlank()) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No headers in csv");
-
                 }
                 String[] headers = headerLine.split(",");
                 String line;
@@ -42,7 +40,7 @@ public class CsvParser {
                     stringBuilder.append(line).append("\n");
                 }
 
-                List<String> inputHeaders = Arrays.asList(headers);
+                Set<String> inputHeaders = Set.of(headers);
                 boolean blank = stringBuilder.toString().replaceAll(",", "").isBlank();
                 if (inputHeaders.containsAll(List.of(TASK_NUMBER, TASK_NAME))) {
                     if (inputHeaders.containsAll(REQUIRED_HEADERS)) {
@@ -90,8 +88,11 @@ public class CsvParser {
                     }
                     task.setTaskName(csvRecord.get(TASK_NAME).contains(",") ? "" : csvRecord.get(TASK_NAME));
                     task.setSectionName(csvRecord.get(SECTION_NAME).contains(",") ? "" : csvRecord.get(SECTION_NAME));
-                    task.setBeginDate(csvRecord.get(BEGIN_DATE).contains(",") ? "" : csvRecord.get(BEGIN_DATE));
-                    task.setEndDate(csvRecord.get(END_DATE).contains(",") ? "" : csvRecord.get(END_DATE));
+
+                    //todo localdattime
+//                    task.setBeginDate(csvRecord.get(BEGIN_DATE).contains(",") ? "" : csvRecord.get(BEGIN_DATE));
+//                    task.setEndDate(csvRecord.get(END_DATE).contains(",") ? "" : csvRecord.get(END_DATE));
+
                     listOfTasks.add(task);
                 }
                 return listOfTasks;

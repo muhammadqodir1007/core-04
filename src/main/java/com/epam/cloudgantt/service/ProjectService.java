@@ -22,5 +22,5 @@ public interface ProjectService {
 
     ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException;
 
-    ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user);
+    ApiResult<String> uploadCSVFileToCreateProject(MultipartFile file, User user);
 }

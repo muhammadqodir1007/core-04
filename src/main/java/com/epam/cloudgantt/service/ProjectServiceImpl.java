@@ -5,28 +5,23 @@ import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.exceptions.RestException;
-import com.epam.cloudgantt.mapper.ProjectMapper;
 import com.epam.cloudgantt.parser.CsvParser;
 import com.epam.cloudgantt.parser.CsvValidator;
 import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.ProjectRepository;
-import com.epam.cloudgantt.repository.UserRepository;
 import com.epam.cloudgantt.util.CSVConstants;
+import com.epam.cloudgantt.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
-
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
-
-import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -35,13 +30,14 @@ import java.util.stream.Collectors;
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final ErrorData errorData;
-    private final ProjectMapper projectMapper;
-    private final UserRepository userRepository;
 
     @Override
     public ApiResult<?> delete(UUID id, User user) {
         Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project does not exist."));
-        if (!project.getUser().equals(user)) throw RestException.restThrow("You are not allowed to rename.");
+
+        if (!Objects.equals(project.getUser(), user))
+            throw RestException.restThrow("You are not allowed to rename.");
+
         projectRepository.deleteById(id);
         return ApiResult.successResponse("Project was successfully deleted.");
     }
@@ -49,9 +45,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user) {
 
-        if (createProjectDTO == null) {
+        if (Objects.isNull(createProjectDTO))
             throw RestException.restThrow("NAME_MUST_NOT_BE_NULL");
-        }
+
         Project project = new Project();
         project.setName(createProjectDTO.getName());
         project.setUser(user);
@@ -80,43 +76,22 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException {
-        Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project not found"));
-        List<Task> listOfTasks = project.getListOfTasks();
+    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> RestException.restThrow("Project not found"));
+
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
-        List<TaskDTO> taskDTOList = new ArrayList<>();
 
-        for (Task task : listOfTasks) {
-            TaskDTO task1DTO = new TaskDTO();
-            task1DTO.setProject_id(id);
-            task1DTO.setAssignee(task.getAssignee());
-            task1DTO.setDescription(task.getDescription());
-            task1DTO.setTaskNumber(task.getTaskNumber());
-            task1DTO.setBeginDate(task.getBeginDate());
-            task1DTO.setEndDate(task.getEndDate());
-            task1DTO.setId(task.getId());
-            task1DTO.setSectionName(task.getSectionName());
-            String endDate = task.getEndDate();
-            int duration = 0;
-            SimpleDateFormat obj = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
-            Date endDate1 = obj.parse(task.getEndDate());
-            Date startDate1 = obj.parse(task.getBeginDate());
-            if (task.getEndDate() != null && task.getBeginDate() != null) {
-                long a = endDate1.getTime() - startDate1.getTime();
-                duration = (int) ((a / (1000 * 60 * 60 * 24)) % 365);
-            } else if (task.getEndDate() == null || task.getBeginDate() == null) {
-                duration = 1;
-            }
-            task1DTO.setDuration(duration);
-            taskDTOList.add(task1DTO);
+        List<TaskDTO> taskDTOList = project.getTasks()
+                .stream()
+                .map(this::mapTaskToTaskDTO)
+                .collect(Collectors.toList());
 
-        }
-
-
-        //todo taskDTO
         projectDTO.setTasks(taskDTOList);
+
         return ApiResult.successResponse(projectDTO);
     }
+
 
     private ProjectDTO mapProjectToProjectDTO(Project project) {
         return new ProjectDTO(project.getId(), project.getName());
@@ -124,18 +99,46 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    @SneakyThrows
-    public ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user) {
-        if(file.getSize() > CSVConstants.MAX_FILE_SIZE){
-            throw new Exception();
+    public ApiResult<String> uploadCSVFileToCreateProject(MultipartFile file, User user) {
+        //todo message by requirements
+        if (file.getSize() > CSVConstants.MAX_FILE_SIZE)
+            throw RestException.restThrow("Size big");
+
+        List<Task> tasks;
+        try {
+            tasks = new CsvParser(errorData)
+                    .parseCsvFile(file.getInputStream());
+        } catch (IOException e) {
+            throw RestException.restThrow(e.getMessage());
         }
-        List<Task> tasks = new CsvParser(errorData).parseCsvFile(file.getInputStream());
         tasks = new CsvValidator(errorData).validateAll(tasks);
         Project project = new Project();
-        project.setListOfTasks(tasks);
-        project.setName("name");
+        project.setTasks(tasks);
+        project.setName(file.getOriginalFilename());
         project.setUser(user);
         projectRepository.save(project);
-        return ApiResult.successResponse(new ProjectResponseDTO(Collections.singletonList("kayf")));
+
+        return ApiResult.successResponse("OK");
     }
+
+    private TaskDTO mapTaskToTaskDTO(Task task) {
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setProjectId(task.getProject().getId());
+        taskDTO.setAssignee(task.getAssignee());
+        taskDTO.setDescription(task.getDescription());
+        taskDTO.setTaskNumber(task.getTaskNumber());
+        taskDTO.setBeginDate(task.getBeginDate());
+        taskDTO.setEndDate(task.getEndDate());
+        taskDTO.setId(task.getId());
+        taskDTO.setSectionName(task.getSectionName());
+        int duration = 0;
+        if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate()))
+            duration = CommonUtils.getDiffTwoDateInDays(task.getEndDate(), task.getBeginDate());
+        else if (Objects.isNull(task.getEndDate()) || Objects.isNull(task.getBeginDate()))
+            duration = 1;
+
+        taskDTO.setDuration(duration);
+        return taskDTO;
+    }
+
 }

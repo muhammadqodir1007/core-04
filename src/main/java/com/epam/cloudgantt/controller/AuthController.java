@@ -17,7 +17,7 @@ public interface AuthController {
     String RESEND_VERIFY_ACCOUNT_CODE_PATH = "resend-verification-code";
     String FORGOT_PASSWORD_PATH = "forgot-password";
     String RESET_PASSWORD_PATH = "reset-password";
-    String EXPORT_TEMPLATE="export-template";
+    String EXPORT_TEMPLATE = "export-template";
 
     String RESET_FORGOTTEN_PASSWORD_PATH = "reset-forgotten-password";
 
@@ -27,8 +27,6 @@ public interface AuthController {
 
     @PostMapping(value = SIGN_IN_PATH)
     ApiResult<TokenDTO> signIn(@Valid @RequestBody SignInDTO signInDTO);
-
-
 
 
     @GetMapping("confirm-email/{verificationCode}")

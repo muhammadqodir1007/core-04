@@ -1,6 +1,7 @@
 package com.epam.cloudgantt.controller;
 
 import com.epam.cloudgantt.entity.User;
+import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,9 +19,11 @@ import java.util.UUID;
 @Slf4j
 public class ProjectControllerImpl implements ProjectController {
     private final ProjectService projectService;
+    private final com.epam.cloudgantt.exceptions.ErrorData errorData;
 
-    public ProjectControllerImpl(ProjectService projectService) {
+    public ProjectControllerImpl(ProjectService projectService, ErrorData errorData) {
         this.projectService = projectService;
+        this.errorData = errorData;
     }
 
     @Override
@@ -42,14 +47,18 @@ public class ProjectControllerImpl implements ProjectController {
     }
 
     @Override
-    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
+    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException {
         return projectService.myProjectById(id,user);
     }
 
     @Override
-    public ApiResult<ProjectResponseDTO> uploadCSV(MultipartFile file, User user) throws IOException {
-        return projectService.uploadCSVFileToCreateProject(file, user);
+    public ApiResult<ProjectResponseDTO> uploadCSV(MultipartFile file, User user) {
+        try {
+            projectService.uploadCSVFileToCreateProject(file, user);
+            return ApiResult.successResponse(new ProjectResponseDTO(errorData.getErrorMessages()));
+        } catch (RuntimeException e) {
+            return ApiResult.errorResponseWithData(new ProjectResponseDTO(Collections.singletonList(e.getMessage())));
+        }
     }
-
 
 }

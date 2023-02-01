@@ -47,8 +47,6 @@ public class ProjectControllerImpl implements ProjectController {
     }
 
     @Override
-    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
-        return projectService.myProjectById(id, user);
     public ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException {
         return projectService.myProjectById(id,user);
     }

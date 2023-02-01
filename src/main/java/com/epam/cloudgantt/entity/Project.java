@@ -28,7 +28,5 @@ public class Project extends AbsUUIDEntity {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Task> listOfTasks;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Task1> listOfTasks;
 
 }

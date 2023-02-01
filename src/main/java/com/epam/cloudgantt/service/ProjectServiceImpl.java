@@ -1,7 +1,6 @@
 package com.epam.cloudgantt.service;
 
 import com.epam.cloudgantt.entity.Project;
-import com.epam.cloudgantt.entity.Task1;
 import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.exceptions.ErrorData;
@@ -14,7 +13,6 @@ import com.epam.cloudgantt.repository.ProjectRepository;
 import com.epam.cloudgantt.repository.UserRepository;
 import com.epam.cloudgantt.util.CSVConstants;
 import lombok.RequiredArgsConstructor;
-import static com.epam.cloudgantt.parser.CsvValidator.*;
 
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -27,15 +25,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.epam.cloudgantt.parser.CsvValidator.*;
 
 
 @Service
@@ -90,12 +82,12 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException {
         Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project not found"));
-        List<Task1> listOfTasks = project.getListOfTasks();
+        List<Task> listOfTasks = project.getListOfTasks();
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
-        List<Task1DTO> task1DTOList = new ArrayList<>();
+        List<TaskDTO> taskDTOList = new ArrayList<>();
 
-        for (Task1 task : listOfTasks) {
-            Task1DTO task1DTO = new Task1DTO();
+        for (Task task : listOfTasks) {
+            TaskDTO task1DTO = new TaskDTO();
             task1DTO.setProject_id(id);
             task1DTO.setAssignee(task.getAssignee());
             task1DTO.setDescription(task.getDescription());
@@ -116,13 +108,13 @@ public class ProjectServiceImpl implements ProjectService {
                 duration = 1;
             }
             task1DTO.setDuration(duration);
-            task1DTOList.add(task1DTO);
+            taskDTOList.add(task1DTO);
 
         }
 
 
         //todo taskDTO
-        projectDTO.setTasks(task1DTOList);
+        projectDTO.setTasks(taskDTOList);
         return ApiResult.successResponse(projectDTO);
     }
 

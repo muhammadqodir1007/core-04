@@ -18,7 +18,7 @@ public class ProjectDTO {
 
     private String name;
 
-    private List<Task1DTO> tasks;
+    private List<TaskDTO> tasks;
 
     public ProjectDTO(UUID id, String name) {
         this.id = id;

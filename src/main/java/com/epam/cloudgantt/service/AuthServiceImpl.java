@@ -104,7 +104,6 @@ public class AuthServiceImpl implements AuthService {
 
 
         User user = (User) authentication.getPrincipal();
-        System.out.println(user);
 
         TokenDTO tokenDTO = TokenDTO.builder()
                 .accessToken(jwtProvider.generateAccessToken(user))

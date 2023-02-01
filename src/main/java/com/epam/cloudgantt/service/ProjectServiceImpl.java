@@ -1,5 +1,6 @@
 package com.epam.cloudgantt.service;
 
+import com.epam.cloudgantt.config.MessageByLang;
 import com.epam.cloudgantt.entity.Project;
 import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.entity.User;
@@ -7,18 +8,21 @@ import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.parser.CsvParser;
 import com.epam.cloudgantt.parser.CsvValidator;
-import com.epam.cloudgantt.payload.*;
+import com.epam.cloudgantt.payload.ApiResult;
+import com.epam.cloudgantt.payload.CreateProjectDTO;
+import com.epam.cloudgantt.payload.ProjectDTO;
+import com.epam.cloudgantt.payload.ProjectResponseDTO;
+import com.epam.cloudgantt.payload.TaskDTO;
+import com.epam.cloudgantt.payload.UpdateProjectDTO;
 import com.epam.cloudgantt.repository.ProjectRepository;
 import com.epam.cloudgantt.util.CSVConstants;
 import com.epam.cloudgantt.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -98,11 +102,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Transactional
     public ApiResult<String> uploadCSVFileToCreateProject(MultipartFile file, User user) {
-        //todo message by requirements
         if (file.getSize() > CSVConstants.MAX_FILE_SIZE)
-            throw RestException.restThrow("Size big");
+            throw RestException.restThrow(MessageByLang.getMessage("CSV_FILE_SIZE_EXCEEDS_5MB"));
 
         List<Task> tasks;
         try {
@@ -114,11 +116,23 @@ public class ProjectServiceImpl implements ProjectService {
         tasks = new CsvValidator(errorData).validateAll(tasks);
         Project project = new Project();
         project.setTasks(tasks);
-        project.setName(file.getOriginalFilename());
+
+        String originalFilename = file.getOriginalFilename();
+        String projectName = "Project";
+        if (Objects.nonNull(originalFilename)) {
+            projectName = originalFilename.substring(0, originalFilename.indexOf("."));
+        }
+        project.setName(projectName);
         project.setUser(user);
+
+        tasks.forEach(task -> task.setProject(project));
+
         projectRepository.save(project);
 
-        return ApiResult.successResponse("OK");
+
+        System.out.println(MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED") + " \n" + String.join("\n", errorData.getErrorMessages()));
+        return ApiResult.successResponse(MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED") + " \n" + String.join("\n", errorData.getErrorMessages()));
+
     }
 
     private TaskDTO mapTaskToTaskDTO(Task task) {

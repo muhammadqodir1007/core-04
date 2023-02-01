@@ -8,6 +8,8 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "projects")
@@ -23,6 +25,10 @@ public class Project extends AbsUUIDEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Task> listOfTasks;
+    @OneToMany(mappedBy = "project",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private List<Task> tasks;
+
+
 }

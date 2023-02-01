@@ -8,8 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Collections;
+import java.text.ParseException;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,18 +44,13 @@ public class ProjectControllerImpl implements ProjectController {
     }
 
     @Override
-    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
+    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException {
         return projectService.myProjectById(id, user);
     }
 
     @Override
-    public ApiResult<ProjectResponseDTO> uploadCSV(MultipartFile file, User user) {
-        try {
-            projectService.uploadCSV(file, user);
-            return ApiResult.successResponse(new ProjectResponseDTO(errorData.getErrorMessages()));
-        } catch (RuntimeException | IOException e) {
-            return ApiResult.errorResponseWithData(new ProjectResponseDTO(Collections.singletonList(e.getMessage())));
-        }
+    public ApiResult<String> uploadCSV(MultipartFile file, User user) {
+        return projectService.uploadCSVFileToCreateProject(file, user);
     }
 
 }

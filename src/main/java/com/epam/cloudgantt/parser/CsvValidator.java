@@ -2,17 +2,18 @@ package com.epam.cloudgantt.parser;
 
 import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.exceptions.ErrorData;
-import com.epam.cloudgantt.exceptions.RestException;
 import lombok.SneakyThrows;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CsvValidator {
-
     private final ErrorData errorData;
 
     public CsvValidator(ErrorData errorData) {
@@ -20,12 +21,14 @@ public class CsvValidator {
     }
 
     public List<Task> validateAll(List<Task> tasks) {
-        tasks.forEach(task -> {
-            isRequiredFormatDate((task.getBeginDate()));
-            isRequiredFormatDate((task.getEndDate()));
-            isBeginDateBeforeEndDate(task.getBeginDate(), task.getEndDate());
-            cutTextToMaxLength(task);
-        });
+        //todo check
+//        tasks.forEach(task -> {
+//            isRequiredFormatDate((task.getBeginDate()));
+//            isRequiredFormatDate((task.getEndDate()));
+//            isBeginDateBeforeEndDate(task.getBeginDate(), task.getEndDate());
+//            cutTextToMaxLength(task);
+//
+//        });
         checkSectionNames(tasks);
         tasks = sortAndGet50(tasks);
         return tasks;
@@ -38,7 +41,7 @@ public class CsvValidator {
             try {
                 sdf.parse(date);
             } catch (ParseException e) {
-                throw RestException.restThrow("failed to parse date.Make sure your date is in dd/MM/yyyy format");
+                throw new RuntimeException("Incorrect date format");
             }
         }
     }
@@ -50,10 +53,10 @@ public class CsvValidator {
                 final Date beginDate = dtf.parse(begin);
                 final Date endDate = dtf.parse(end);
                 if (!beginDate.before(endDate)) {
-                    throw RestException.restThrow("End date > begin date");
+                    throw new RuntimeException("End date > begin date");
                 }
             } catch (ParseException p) {
-                throw RestException.restThrow("failed to parse date.Make sure your date is in dd/MM/yyyy format");
+                throw new RuntimeException("failed to parse date");
             }
     }
 
@@ -85,7 +88,7 @@ public class CsvValidator {
         tasks.forEach(task -> idsOfTasks.add(task.getTaskNumber()));
         if (idsOfTasks.size() != tasks.size()) {
             System.out.println("idn nuynna");
-            throw RestException.restThrow("id is not unique");
+            throw new RuntimeException("id is not unique");
         }
         if (tasks.size() > 50)
             errorData.getErrorMessages().add("The limit of 50 tasks was exceeded. Only 50 first tasks were uploaded");

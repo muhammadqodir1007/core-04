@@ -1,10 +1,8 @@
 package com.epam.cloudgantt.service;
-
 import com.epam.cloudgantt.entity.CsvTemplate;
 import com.epam.cloudgantt.repository.CsvTemplateRepository;
 import com.opencsv.CSVWriter;
 import org.springframework.stereotype.Service;
-
 import java.io.Writer;
 import java.util.List;
 

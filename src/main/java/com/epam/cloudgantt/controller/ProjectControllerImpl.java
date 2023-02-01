@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class ProjectControllerImpl implements ProjectController {
     }
 
     @Override
-    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
+    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException {
         return projectService.myProjectById(id,user);
     }
 

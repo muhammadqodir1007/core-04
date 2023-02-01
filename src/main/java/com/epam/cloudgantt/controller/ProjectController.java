@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ public interface ProjectController {
 
 
     @GetMapping(value = MY_PROJECT_BY_ID_PATH)
-    ApiResult<ProjectDTO> myProjectById(@PathVariable UUID id, @CurrentUser User user);
+    ApiResult<ProjectDTO> myProjectById(@PathVariable UUID id, @CurrentUser User user) throws ParseException;
 
     @PostMapping(value = UPLOAD_CSV_PATH)
     ApiResult<ProjectResponseDTO> uploadCSV(@RequestParam("file")MultipartFile file, @CurrentUser User user) throws IOException;

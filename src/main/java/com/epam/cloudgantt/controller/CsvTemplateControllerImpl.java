@@ -35,7 +35,7 @@ public class CsvTemplateControllerImpl implements CsvTemplateController {
         csvTemplateService.exportCSV(response.getWriter());
     }
 
-    @Override
+/*    @Override
     public ApiResult<ProjectResponseDTO> uploadCSV(MultipartFile file, User user) throws Exception {
         checkFileSize(file);
         InputStream inputStream = file.getInputStream();
@@ -44,6 +44,6 @@ public class CsvTemplateControllerImpl implements CsvTemplateController {
 
     private void checkFileSize(MultipartFile file) throws Exception {
         if(file.getSize() > MAX_FILE_SIZE) throw new Exception();
-    }
+    }*/
 }
 

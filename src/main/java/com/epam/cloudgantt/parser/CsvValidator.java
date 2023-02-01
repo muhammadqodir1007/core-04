@@ -2,6 +2,7 @@ package com.epam.cloudgantt.parser;
 
 import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.exceptions.ErrorData;
+import com.epam.cloudgantt.exceptions.RestException;
 import lombok.SneakyThrows;
 
 import java.text.DateFormat;
@@ -11,48 +12,49 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CsvValidator {
+
     private final ErrorData errorData;
 
     public CsvValidator(ErrorData errorData) {
         this.errorData = errorData;
     }
 
-    public List<Task> validateAll(List<Task> tasks){
+    public List<Task> validateAll(List<Task> tasks) {
         tasks.forEach(task -> {
             isRequiredFormatDate((task.getBeginDate()));
             isRequiredFormatDate((task.getEndDate()));
             isBeginDateBeforeEndDate(task.getBeginDate(), task.getEndDate());
             cutTextToMaxLength(task);
-
         });
         checkSectionNames(tasks);
         tasks = sortAndGet50(tasks);
         return tasks;
     }
+
     public static void isRequiredFormatDate(String date) {
         DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         sdf.setLenient(false);
-        if(!date.replaceAll(",", "").isBlank()){
-        try {
-            sdf.parse(date);
-        } catch (ParseException e) {
-            throw new RuntimeException("Incorrect date format");
-        }
+        if (!date.replaceAll(",", "").isBlank()) {
+            try {
+                sdf.parse(date);
+            } catch (ParseException e) {
+                throw RestException.restThrow("failed to parse date.Make sure your date is in dd/MM/yyyy format");
+            }
         }
     }
 
     public void isBeginDateBeforeEndDate(String begin, String end) {
-        if(!begin.isBlank() && !end.isBlank())
-        try {
-            final DateFormat dtf = new SimpleDateFormat("dd/MM/yyyy");
-            final Date beginDate = dtf.parse(begin);
-            final Date endDate = dtf.parse(end);
-            if(!beginDate.before(endDate)) {
-                throw new RuntimeException("End date > begin date");
+        if (!begin.isBlank() && !end.isBlank())
+            try {
+                final DateFormat dtf = new SimpleDateFormat("dd/MM/yyyy");
+                final Date beginDate = dtf.parse(begin);
+                final Date endDate = dtf.parse(end);
+                if (!beginDate.before(endDate)) {
+                    throw RestException.restThrow("End date > begin date");
+                }
+            } catch (ParseException p) {
+                throw RestException.restThrow("failed to parse date.Make sure your date is in dd/MM/yyyy format");
             }
-        } catch (ParseException p) {
-            throw new RuntimeException("failed to parse date");
-        }
     }
 
     public void cutTextToMaxLength(Task task) {
@@ -77,14 +79,16 @@ public class CsvValidator {
             task.setTaskName(taskName.substring(0, 255));
         }
     }
+
     public List<Task> sortAndGet50(List<Task> tasks) {
         HashSet<Long> idsOfTasks = new HashSet<>();
         tasks.forEach(task -> idsOfTasks.add(task.getTaskNumber()));
-        if (idsOfTasks.size() != tasks.size()){
+        if (idsOfTasks.size() != tasks.size()) {
             System.out.println("idn nuynna");
-            throw new RuntimeException("id is not unique");
+            throw RestException.restThrow("id is not unique");
         }
-        if(tasks.size() > 50) errorData.getErrorMessages().add("The limit of 50 tasks was exceeded. Only 50 first tasks were uploaded");
+        if (tasks.size() > 50)
+            errorData.getErrorMessages().add("The limit of 50 tasks was exceeded. Only 50 first tasks were uploaded");
         tasks.sort(Comparator.comparing(Task::getTaskNumber));
         return tasks.stream().limit(Math.min(tasks.size(), 50)).collect(Collectors.toList());
     }
@@ -100,7 +104,7 @@ public class CsvValidator {
                 textCount++;
             }
         }
-        if(blankTextCount > 0 && textCount > 0){
+        if (blankTextCount > 0 && textCount > 0) {
             throw new RuntimeException("Please fill in section_name field for each task");
         }
     }

@@ -43,5 +43,4 @@ public interface ProjectController {
 
     @PostMapping(value = UPLOAD_CSV_PATH)
     ApiResult<ProjectResponseDTO> uploadCSV(@RequestParam("file")MultipartFile file, @CurrentUser User user) throws IOException;
-
 }

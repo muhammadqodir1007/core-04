@@ -25,6 +25,6 @@ public interface CsvTemplateController {
     @GetMapping(value = EXPORT_TEMPLATE_PATH)
     void exportCSV(HttpServletResponse response) throws IOException;
 
-    @PostMapping(value = UPLOAD_PATH)
-    ApiResult<ProjectResponseDTO> uploadCSV(@RequestParam("file") MultipartFile file, @CurrentUser User user) throws Exception;
+    /*@PostMapping(value = UPLOAD_PATH)
+    ApiResult<ProjectResponseDTO> uploadCSV(@RequestParam("file") MultipartFile file, @CurrentUser User user) throws Exception;*/
 }

@@ -8,27 +8,25 @@ import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.mapper.ProjectMapper;
 import com.epam.cloudgantt.parser.CsvParser;
 import com.epam.cloudgantt.parser.CsvValidator;
-import com.epam.cloudgantt.payload.*;
+import com.epam.cloudgantt.payload.ApiResult;
+import com.epam.cloudgantt.payload.CreateProjectDTO;
+import com.epam.cloudgantt.payload.ProjectDTO;
+import com.epam.cloudgantt.payload.ProjectResponseDTO;
+import com.epam.cloudgantt.payload.UpdateProjectDTO;
 import com.epam.cloudgantt.repository.ProjectRepository;
 import com.epam.cloudgantt.repository.UserRepository;
 import com.epam.cloudgantt.util.CSVConstants;
 import lombok.RequiredArgsConstructor;
-import static com.epam.cloudgantt.parser.CsvValidator.*;
-
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static com.epam.cloudgantt.parser.CsvValidator.*;
 
 
 @Service
@@ -98,17 +96,26 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     @SneakyThrows
-    public ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user) {
-        if(file.getSize() > CSVConstants.MAX_FILE_SIZE){
-            throw new Exception();
+    public ApiResult<ProjectResponseDTO> uploadCSV(MultipartFile file, User user) {
+        if (file.getSize() > CSVConstants.MAX_FILE_SIZE) {
+            throw new Exception("Uploaded file size exceeds 5MB!");
         }
         List<Task> tasks = new CsvParser(errorData).parseCsvFile(file.getInputStream());
         tasks = new CsvValidator(errorData).validateAll(tasks);
+        String fileName = file.getOriginalFilename();
+        int index = Objects.requireNonNull(fileName).indexOf(".");
+        String projectName = "project";
+        if (index != -1) {
+            projectName = fileName.substring(0, index);
+        }
         Project project = new Project();
         project.setListOfTasks(tasks);
-        project.setName("name");
+        project.setName(projectName);
         project.setUser(user);
+
+        tasks.forEach(task -> task.setProject(project));
+
         projectRepository.save(project);
-        return ApiResult.successResponse(new ProjectResponseDTO(Collections.singletonList("kayf")));
+        return ApiResult.successResponse(new ProjectResponseDTO(Collections.singletonList("Project loaded successfully!")));
     }
 }

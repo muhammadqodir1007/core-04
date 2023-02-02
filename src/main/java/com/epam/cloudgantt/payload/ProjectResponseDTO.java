@@ -1,6 +1,8 @@
 package com.epam.cloudgantt.payload;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.service.UnknownUnwrapTypeException;
 
@@ -9,11 +11,11 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProjectResponseDTO {
 
-    private List<String> message;
+    private UUID id;
 
-    public ProjectResponseDTO(List<String> message) {
-        this.message = message;
-    }
+    private List<String> message;
 }

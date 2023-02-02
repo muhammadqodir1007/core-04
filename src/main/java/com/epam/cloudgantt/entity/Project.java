@@ -28,6 +28,7 @@ public class Project extends AbsUUIDEntity {
     @OneToMany(mappedBy = "project",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
+    @OrderBy(value = "sectionName,taskNumber")
     private List<Task> tasks;
 
 

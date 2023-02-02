@@ -28,6 +28,12 @@ public class ApiResult<E> {
         this.message = message;
     }
 
+    private ApiResult(E data, String message) {
+        this.success = true;
+        this.message = message;
+        this.data = data;
+    }
+
     private ApiResult(E data, boolean success) {
         this.data = data;
         this.success = success;
@@ -45,6 +51,10 @@ public class ApiResult<E> {
 
     public static <T> ApiResult<T> successResponse(String message) {
         return new ApiResult<>(message);
+    }
+
+    public static <T> ApiResult<T> successResponse(T data, String message) {
+        return new ApiResult<>(data, message);
     }
 
     public static <T> ApiResult<T> successResponse(T data) {

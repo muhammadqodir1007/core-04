@@ -3,7 +3,6 @@ package com.epam.cloudgantt.service;
 import com.epam.cloudgantt.entity.User;
 import com.epam.cloudgantt.payload.ApiResult;
 import com.epam.cloudgantt.payload.CreateProjectDTO;
-import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.payload.ProjectDTO;
 import com.epam.cloudgantt.payload.ProjectResponseDTO;
 import com.epam.cloudgantt.payload.UpdateProjectDTO;
@@ -25,5 +24,5 @@ public interface ProjectService {
 
     ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException;
 
-    ApiResult<String> uploadCSVFileToCreateProject(MultipartFile file, User user);
+    ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user);
 }

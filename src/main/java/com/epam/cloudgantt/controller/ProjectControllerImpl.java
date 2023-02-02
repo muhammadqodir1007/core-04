@@ -49,7 +49,7 @@ public class ProjectControllerImpl implements ProjectController {
     }
 
     @Override
-    public ApiResult<String> uploadCSV(MultipartFile file, User user) {
+    public ApiResult<ProjectResponseDTO> uploadCSV(MultipartFile file, User user) {
         return projectService.uploadCSVFileToCreateProject(file, user);
     }
 

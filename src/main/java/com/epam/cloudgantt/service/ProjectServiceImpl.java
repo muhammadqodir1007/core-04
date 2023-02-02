@@ -8,24 +8,16 @@ import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.parser.CsvParser;
 import com.epam.cloudgantt.parser.CsvValidator;
-import com.epam.cloudgantt.payload.ApiResult;
-import com.epam.cloudgantt.payload.CreateProjectDTO;
-import com.epam.cloudgantt.payload.ProjectDTO;
-import com.epam.cloudgantt.payload.ProjectResponseDTO;
-import com.epam.cloudgantt.payload.TaskDTO;
-import com.epam.cloudgantt.payload.UpdateProjectDTO;
+import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.ProjectRepository;
 import com.epam.cloudgantt.util.CSVConstants;
 import com.epam.cloudgantt.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -86,12 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
 
-        List<TaskDTO> taskDTOList = project.getTasks()
-                .stream()
-                .map(this::mapTaskToTaskDTO)
-                .collect(Collectors.toList());
-
-        projectDTO.setTasks(taskDTOList);
+        projectDTO.setSections(mapTasksToSectionDTO(project));
 
         return ApiResult.successResponse(projectDTO);
     }
@@ -102,7 +89,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ApiResult<String> uploadCSVFileToCreateProject(MultipartFile file, User user) {
+    public ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user) {
         if (file.getSize() > CSVConstants.MAX_FILE_SIZE)
             throw RestException.restThrow(MessageByLang.getMessage("CSV_FILE_SIZE_EXCEEDS_5MB"));
 
@@ -129,9 +116,12 @@ public class ProjectServiceImpl implements ProjectService {
 
         projectRepository.save(project);
 
-
-        System.out.println(MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED") + " \n" + String.join("\n", errorData.getErrorMessages()));
-        return ApiResult.successResponse(MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED") + " \n" + String.join("\n", errorData.getErrorMessages()));
+        return ApiResult.successResponse(
+                new ProjectResponseDTO(
+                        project.getId(),
+                        errorData.getErrorMessages()
+                ),
+                MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED"));
 
     }
 
@@ -143,16 +133,35 @@ public class ProjectServiceImpl implements ProjectService {
         taskDTO.setTaskNumber(task.getTaskNumber());
         taskDTO.setBeginDate(task.getBeginDate());
         taskDTO.setEndDate(task.getEndDate());
+        taskDTO.setTaskName(task.getTaskName());
         taskDTO.setId(task.getId());
         taskDTO.setSectionName(task.getSectionName());
         int duration = 0;
         if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate()))
-            duration = CommonUtils.getDiffTwoDateInDays(task.getEndDate(), task.getBeginDate());
+            duration = CommonUtils.getDiffTwoDateInDays(task.getBeginDate(), task.getEndDate());
         else if (Objects.isNull(task.getEndDate()) || Objects.isNull(task.getBeginDate()))
             duration = 1;
 
         taskDTO.setDuration(duration);
         return taskDTO;
+    }
+
+    private List<TaskDTO> mapTasksToTaskDTOList(List<Task> tasks) {
+        return tasks.stream().map(this::mapTaskToTaskDTO).collect(Collectors.toList());
+    }
+
+    private List<SectionDTO> mapTasksToSectionDTO(Project project) {
+        Map<String, List<Task>> sectionMap =
+                project.getTasks().stream().collect(Collectors.groupingBy(Task::getSectionName));
+
+        List<SectionDTO> sectionDTOList = new ArrayList<>();
+        sectionMap.forEach((sectionName, tasks) ->
+                sectionDTOList.add(new SectionDTO(
+                        sectionName,
+                        mapTasksToTaskDTOList(tasks)
+                )));
+
+        return sectionDTOList;
     }
 
 }

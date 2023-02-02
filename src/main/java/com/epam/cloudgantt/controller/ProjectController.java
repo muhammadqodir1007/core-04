@@ -42,6 +42,6 @@ public interface ProjectController {
     ApiResult<ProjectDTO> myProjectById(@PathVariable UUID id, @CurrentUser User user) throws ParseException;
 
     @PostMapping(value = UPLOAD_CSV_PATH)
-    ApiResult<String> uploadCSV(@RequestParam("file") MultipartFile file, @CurrentUser User user);
+    ApiResult<ProjectResponseDTO> uploadCSV(@RequestParam("file") MultipartFile file, @CurrentUser User user);
 
 }

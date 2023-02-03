@@ -78,16 +78,24 @@ public class CsvValidator {
         String sectionName = task.getSectionName();
         if (taskName.length() > 255) {
             task.setTaskName(taskName.substring(0, 255));
+            checkIfExists(s);
         }
         if (assignee.length() > 255) {
             task.setTaskName(taskName.substring(0, 255));
+            checkIfExists(s);
         }
         if (description.length() > 255) {
             task.setTaskName(taskName.substring(0, 255));
+            checkIfExists(s);
         }
         if (sectionName.length() > 255) {
             task.setTaskName(taskName.substring(0, 255));
+            checkIfExists(s);
         }
+
+    }
+
+    private void checkIfExists(String s) {
         if (!errorData.getAlertMessages().contains(s)) {
             errorData.getAlertMessages().add(s);
         }

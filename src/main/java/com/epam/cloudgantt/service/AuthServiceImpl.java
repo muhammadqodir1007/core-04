@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -97,10 +98,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ApiResult<TokenDTO> signIn(SignInDTO signInDTO) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        signInDTO.getEmail(),
-                        signInDTO.getPassword()));
+        Authentication authentication = null;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            signInDTO.getEmail(),
+                            signInDTO.getPassword()));
+        } catch (AuthenticationException e) {
+            throw RestException.restThrow("Login or Password incorrect");
+        }
 
 
         User user = (User) authentication.getPrincipal();

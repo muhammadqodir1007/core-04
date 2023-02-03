@@ -156,9 +156,7 @@ public class ProjectServiceImpl implements ProjectService {
         taskDTO.setSectionName(task.getSectionName());
         int duration = 0;
         if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate()))
-            duration = CommonUtils.getDiffTwoDateInDays(task.getBeginDate(), task.getEndDate());
-        else if (Objects.isNull(task.getEndDate()) || Objects.isNull(task.getBeginDate()))
-            duration = 1;
+            duration = CommonUtils.getDiffTwoDateInDays(task.getBeginDate(), task.getEndDate()) + 1;
 
         taskDTO.setDuration(duration);
         return taskDTO;

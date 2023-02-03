@@ -8,16 +8,27 @@ import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.parser.CsvParser;
 import com.epam.cloudgantt.parser.CsvValidator;
-import com.epam.cloudgantt.payload.*;
+import com.epam.cloudgantt.payload.ApiResult;
+import com.epam.cloudgantt.payload.CreateProjectDTO;
+import com.epam.cloudgantt.payload.ProjectDTO;
+import com.epam.cloudgantt.payload.ProjectResponseDTO;
+import com.epam.cloudgantt.payload.SectionDTO;
+import com.epam.cloudgantt.payload.TaskDTO;
+import com.epam.cloudgantt.payload.UpdateProjectDTO;
 import com.epam.cloudgantt.repository.ProjectRepository;
 import com.epam.cloudgantt.util.CSVConstants;
 import com.epam.cloudgantt.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -25,7 +36,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
-    private final ErrorData errorData;
+
+    private final CsvParser csvParser;
+
+    private final CsvValidator csvValidator;
 
     @Override
     public ApiResult<?> delete(UUID id, User user) {
@@ -94,13 +108,18 @@ public class ProjectServiceImpl implements ProjectService {
             throw RestException.restThrow(MessageByLang.getMessage("CSV_FILE_SIZE_EXCEEDS_5MB"));
 
         List<Task> tasks;
+        ErrorData errorData = new ErrorData(new ArrayList<>());
+
         try {
-            tasks = new CsvParser(errorData)
-                    .parseCsvFile(file.getInputStream());
+            csvParser.setErrorData(errorData);
+            tasks = csvParser.parseCsvFile(file.getInputStream());
         } catch (IOException e) {
             throw RestException.restThrow(e.getMessage());
         }
-        tasks = new CsvValidator(errorData).validateAll(tasks);
+
+        csvValidator.setErrorData(errorData);
+        tasks = csvValidator.validateAll(tasks);
+
         Project project = new Project();
         project.setTasks(tasks);
 
@@ -119,10 +138,9 @@ public class ProjectServiceImpl implements ProjectService {
         return ApiResult.successResponse(
                 new ProjectResponseDTO(
                         project.getId(),
-                        errorData.getErrorMessages()
+                        errorData.getAlertMessages()
                 ),
                 MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED"));
-
     }
 
     private TaskDTO mapTaskToTaskDTO(Task task) {

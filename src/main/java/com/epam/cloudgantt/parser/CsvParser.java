@@ -4,13 +4,17 @@ import com.epam.cloudgantt.config.MessageByLang;
 import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.exceptions.RestException;
+import lombok.Setter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,11 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.epam.cloudgantt.util.CSVConstants.*;
+import static com.epam.cloudgantt.util.CSVConstants.ASSIGNEE;
+import static com.epam.cloudgantt.util.CSVConstants.BEGIN_DATE;
+import static com.epam.cloudgantt.util.CSVConstants.DESCRIPTION;
+import static com.epam.cloudgantt.util.CSVConstants.END_DATE;
+import static com.epam.cloudgantt.util.CSVConstants.REQUIRED_HEADERS;
+import static com.epam.cloudgantt.util.CSVConstants.SECTION_NAME;
+import static com.epam.cloudgantt.util.CSVConstants.TASK_NAME;
+import static com.epam.cloudgantt.util.CSVConstants.TASK_NUMBER;
 
+@Setter
+@Component
 public class CsvParser {
 
-    private final ErrorData errorData;
+    private ErrorData errorData;
 
     public CsvParser(ErrorData errorData) {
         this.errorData = errorData;
@@ -47,7 +60,7 @@ public class CsvParser {
                     throw RestException.restThrow(MessageByLang.getMessage("CSV_REQUIRED_HEADERS_MISSING"));
                 }
                 if (inputHeaders.size() > 7) {
-                    errorData.getErrorMessages().add(MessageByLang.getMessage("CSV_ADDITIONAL_COLUMNS_IGNORED"));
+                    errorData.getAlertMessages().add(MessageByLang.getMessage("CSV_ADDITIONAL_COLUMNS_IGNORED"));
                 }
 
 
@@ -87,6 +100,7 @@ public class CsvParser {
                         if (taskName.isBlank()) {
                             throw RestException.restThrow(MessageByLang.getMessage("CSV_TASK_NUMBER_OR_TASK_NAME_MISSING"));
                         }
+
                         task.setTaskName(taskName.contains(",") ? "" : taskName);
 
                         task.setSectionName(csvRecord.get(SECTION_NAME).contains(",") ? "" : csvRecord.get(SECTION_NAME));

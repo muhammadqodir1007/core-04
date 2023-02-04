@@ -69,7 +69,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user) {
-        if (updateProjectDTO == null) throw RestException.restThrow("NAME_MUST_NOT_BE_NULL");
+        if (updateProjectDTO == null) {
+            throw RestException.restThrow("NAME_MUST_NOT_BE_NULL");
+        } else if (updateProjectDTO.getName().length() <= 1 ||
+                   updateProjectDTO.getName().length() > 255) {
+            throw RestException.restThrow(MessageByLang.getMessage("PROJECT_NAME_LENGTH_ERROR"));
+        }
         Project project = projectRepository.findById(updateProjectDTO.getId()).orElseThrow(() -> RestException.restThrow("Project does not exist."));
 
         if (!project.getUser().equals(user)) throw RestException.restThrow("You are not allowed to rename.");

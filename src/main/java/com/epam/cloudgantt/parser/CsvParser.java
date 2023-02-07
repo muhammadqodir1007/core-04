@@ -100,7 +100,7 @@ public class CsvParser
                     for (CSVRecord csvRecord : csvRecords)
                     {
                         Task task = new Task();
-                        task.setAssignee(csvRecord.get(ASSIGNEE).contains(",") ? "" : csvRecord.get(ASSIGNEE));
+                        task.setAssignee(csvRecord.get(ASSIGNEE));
                         task.setDescription(csvRecord.get(DESCRIPTION).contains(",") ? "" : csvRecord.get(DESCRIPTION));
                         try
                         {

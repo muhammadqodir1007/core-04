@@ -6,6 +6,7 @@ import com.epam.cloudgantt.payload.CreateProjectDTO;
 import com.epam.cloudgantt.payload.ProjectDTO;
 import com.epam.cloudgantt.payload.ProjectResponseDTO;
 import com.epam.cloudgantt.payload.UpdateProjectDTO;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
@@ -22,7 +23,7 @@ public interface ProjectService {
 
     ApiResult<List<ProjectDTO>> myProjects(User user);
 
-    ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException;
+    ApiResult<ProjectDTO> myProjectById(UUID id, User user, PageRequest pageRequest) throws ParseException;
 
     ApiResult<ProjectResponseDTO> uploadCSVFileToCreateProject(MultipartFile file, User user);
 }

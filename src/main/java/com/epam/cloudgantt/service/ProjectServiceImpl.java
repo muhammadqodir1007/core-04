@@ -16,10 +16,13 @@ import com.epam.cloudgantt.payload.SectionDTO;
 import com.epam.cloudgantt.payload.TaskDTO;
 import com.epam.cloudgantt.payload.UpdateProjectDTO;
 import com.epam.cloudgantt.repository.ProjectRepository;
+import com.epam.cloudgantt.repository.TaskRepository;
 import com.epam.cloudgantt.util.CSVConstants;
 import com.epam.cloudgantt.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +39,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
+
+    private final TaskRepository taskRepository;
 
     private final CsvParser csvParser;
 
@@ -91,13 +96,14 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) {
+    public ApiResult<ProjectDTO> myProjectById(UUID id, User user, PageRequest pageRequest) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> RestException.restThrow("Project not found"));
-
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
 
-        projectDTO.setSections(mapTasksToSectionDTO(project));
+        Page<Task> pageableTasks = taskRepository.findByProjectId(id,pageRequest);
+
+        projectDTO.setSections(mapTasksToSectionDTO(pageableTasks));
 
         return ApiResult.successResponse(projectDTO);
     }
@@ -171,9 +177,9 @@ public class ProjectServiceImpl implements ProjectService {
         return tasks.stream().map(this::mapTaskToTaskDTO).collect(Collectors.toList());
     }
 
-    private List<SectionDTO> mapTasksToSectionDTO(Project project) {
+    private List<SectionDTO> mapTasksToSectionDTO(Page<Task> pageableTasks) {
         Map<String, List<Task>> sectionMap =
-                project.getTasks().stream().collect(Collectors.groupingBy(Task::getSectionName));
+                pageableTasks.stream().collect(Collectors.groupingBy(Task::getSectionName));
 
         List<SectionDTO> sectionDTOList = new ArrayList<>();
         sectionMap.forEach((sectionName, tasks) ->

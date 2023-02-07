@@ -5,6 +5,7 @@ import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,8 +45,12 @@ public class ProjectControllerImpl implements ProjectController {
     }
 
     @Override
-    public ApiResult<ProjectDTO> myProjectById(UUID id, User user) throws ParseException {
-        return projectService.myProjectById(id, user);
+    public ApiResult<ProjectDTO> myProjectById(UUID id,
+                                               User user,
+                                               int page,
+                                               int size) throws ParseException {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return projectService.myProjectById(id, user, pageRequest);
     }
 
     @Override

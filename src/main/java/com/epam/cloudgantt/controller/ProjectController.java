@@ -39,7 +39,10 @@ public interface ProjectController {
 
 
     @GetMapping(value = MY_PROJECT_BY_ID_PATH)
-    ApiResult<ProjectDTO> myProjectById(@PathVariable UUID id, @CurrentUser User user) throws ParseException;
+    ApiResult<ProjectDTO> myProjectById(@PathVariable UUID id,
+                                        @CurrentUser User user,
+                                        @RequestParam(required = false, defaultValue = "0") int page,
+                                        @RequestParam(required = false, defaultValue = "15") int size) throws ParseException;
 
     @PostMapping(value = UPLOAD_CSV_PATH)
     ApiResult<ProjectResponseDTO> uploadCSV(@RequestParam("file") MultipartFile file, @CurrentUser User user);

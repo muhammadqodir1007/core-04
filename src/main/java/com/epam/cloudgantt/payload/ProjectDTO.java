@@ -19,6 +19,8 @@ public class ProjectDTO {
 
     private List<SectionDTO> sections;
 
+    private int totalPages;
+
     public ProjectDTO(UUID id, String name) {
         this.id = id;
         this.name = name;

@@ -41,7 +41,7 @@ public interface ProjectController {
     @GetMapping(value = MY_PROJECT_BY_ID_PATH)
     ApiResult<ProjectDTO> myProjectById(@PathVariable UUID id,
                                         @CurrentUser User user,
-                                        @RequestParam(required = false, defaultValue = "0") int page,
+                                        @RequestParam(required = false, defaultValue = "1") int page,
                                         @RequestParam(required = false, defaultValue = "15") int size) throws ParseException;
 
     @PostMapping(value = UPLOAD_CSV_PATH)

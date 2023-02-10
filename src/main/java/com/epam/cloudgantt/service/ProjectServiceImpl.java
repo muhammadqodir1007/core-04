@@ -27,11 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -103,6 +99,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         Page<Task> pageableTasks = taskRepository.findByProjectId(id,pageRequest);
 
+        int numberOfPages = project.getTasks().size() / pageRequest.getPageSize() + 1;
+        projectDTO.setTotalPages(numberOfPages);
         projectDTO.setSections(mapTasksToSectionDTO(pageableTasks));
 
         return ApiResult.successResponse(projectDTO);
@@ -178,8 +176,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private List<SectionDTO> mapTasksToSectionDTO(Page<Task> pageableTasks) {
-        Map<String, List<Task>> sectionMap =
-                pageableTasks.stream().collect(Collectors.groupingBy(Task::getSectionName));
+        TreeMap<String, List<Task>> sectionMap =
+                pageableTasks.stream().collect(Collectors.groupingBy(
+                        Task::getSectionName,
+                        TreeMap::new,
+                        Collectors.toList()));
 
         List<SectionDTO> sectionDTOList = new ArrayList<>();
         sectionMap.forEach((sectionName, tasks) ->

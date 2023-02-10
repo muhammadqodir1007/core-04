@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.UUID;
 
 public interface TaskRepository extends JpaRepository<Task, UUID> {
-    @Query(value = "SELECT * FROM TASKS WHERE PROJECT_ID = ?1",
+    @Query(value = "SELECT * FROM TASKS WHERE PROJECT_ID = ?1 ORDER BY TASK_NUMBER ASC",
             nativeQuery = true)
     Page<Task> findByProjectId(UUID projectId, Pageable pageable);
 

@@ -49,7 +49,7 @@ public class ProjectControllerImpl implements ProjectController {
                                                User user,
                                                int page,
                                                int size) throws ParseException {
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = PageRequest.of(page-1, size);
         return projectService.myProjectById(id, user, pageRequest);
     }
 

@@ -34,6 +34,9 @@ public class Task extends AbsUUIDEntity {
 
     private String assignee;
 
+    @Column(name = "dependency")
+    private String dependency;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "project_id")
     private Project project;

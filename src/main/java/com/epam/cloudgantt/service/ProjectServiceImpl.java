@@ -177,10 +177,18 @@ public class ProjectServiceImpl implements ProjectService {
 
     private List<SectionDTO> mapTasksToSectionDTO(Page<Task> pageableTasks) {
         TreeMap<String, List<Task>> sectionMap =
-                pageableTasks.stream().collect(Collectors.groupingBy(
-                        Task::getSectionName,
-                        TreeMap::new,
-                        Collectors.toList()));
+                new TreeMap<>((s1, s2) -> {
+                    List<Task> tasks1 = pageableTasks.stream()
+                            .filter(t -> t.getSectionName().equals(s1))
+                            .sorted(Comparator.comparingInt(t -> Math.toIntExact(t.getTaskNumber()))).toList();
+                    List<Task> tasks2 = pageableTasks.stream()
+                            .filter(t -> t.getSectionName().equals(s2))
+                            .sorted(Comparator.comparingInt(t -> Math.toIntExact(t.getTaskNumber()))).toList();
+                    return Math.toIntExact(tasks1.get(0).getTaskNumber() - tasks2.get(0).getTaskNumber());
+                });
+        pageableTasks.forEach(task -> {
+            sectionMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task);
+        });
 
         List<SectionDTO> sectionDTOList = new ArrayList<>();
         sectionMap.forEach((sectionName, tasks) ->

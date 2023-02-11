@@ -84,7 +84,7 @@ public class CsvValidator
         Set<Long> taskNumbers = tasks.stream().map(Task::getTaskNumber).collect(Collectors.toSet());
         for (Task task : tasks)
         {
-            if(!task.getDependency().isBlank())
+            if (!task.getDependency().isBlank())
             {
                 dependencies = Arrays.stream(task.getDependency().split(","))
                     .mapToInt(Integer::parseInt)
@@ -94,24 +94,37 @@ public class CsvValidator
         }
         for (Integer dependency : dependencies)
         {
-            if(!taskNumbers.contains(Long.valueOf(dependency))){
+            if (!taskNumbers.contains(Long.valueOf(dependency)))
+            {
                 incorrectDeps.add(dependency);
             }
         }
-        if(!incorrectDeps.isEmpty()){
-            throw RestException.restThrow(String.format(MessageByLang.getMessage("CSV_DEPENDENCY_NOT_EXIST"),
-                StringUtils.collectionToDelimitedString(incorrectDeps, ",")));
+        if (!incorrectDeps.isEmpty())
+        {
+            throw RestException.restThrow(String.format(
+                MessageByLang.getMessage("CSV_DEPENDENCY_NOT_EXIST"),
+                StringUtils.collectionToDelimitedString(incorrectDeps, ",")
+            ));
         }
     }
 
     private void isDependencyValid(Task task)
     {
+        Set<Integer> dependencies;
         if (!task.getDependency().isBlank())
         {
-            Set<Integer> dependencies = Arrays.stream(task.getDependency().split(","))
-                .mapToInt(Integer::parseInt)
-                .boxed()
-                .collect(Collectors.toSet());
+            try
+            {
+                dependencies = Arrays.stream(task.getDependency().split(","))
+                    .mapToInt(Integer::parseInt)
+                    .boxed()
+                    .collect(Collectors.toSet());
+            }
+            catch (Exception e)
+            {
+                throw RestException.restThrow(String.format(MessageByLang.getMessage("CSV_DEPENDS_ON_NOT_NUMBER"),
+                    task.getTaskNumber()));
+            }
             task.setDependency(StringUtils.collectionToDelimitedString(dependencies, ","));
             for (Integer dependency : dependencies)
             {

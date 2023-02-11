@@ -163,12 +163,38 @@ public class ProjectServiceImpl implements ProjectService {
         taskDTO.setTaskName(task.getTaskName());
         taskDTO.setId(task.getId());
         taskDTO.setSectionName(task.getSectionName());
+        taskPredecessor(task, taskDTO);
+        taskSuccessor(task, taskDTO);
+
         int duration = 0;
         if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate()))
             duration = CommonUtils.getDiffTwoDateInDays(task.getBeginDate(), task.getEndDate()) + 1;
 
         taskDTO.setDuration(duration);
         return taskDTO;
+    }
+
+    private void taskSuccessor(Task task, TaskDTO taskDTO)
+    {
+        if(!taskRepository.getAllByDependencyContaining(String.valueOf(task.getTaskNumber())).isEmpty())
+        {
+            taskDTO.setSuccessor(taskRepository.getAllByDependencyContaining(String.valueOf(task.getTaskNumber()))
+                .stream()
+                .map(Task::getTaskNumber)
+                .collect(Collectors.toList()).toString().replace("[", "").replace("]", ""));
+        }
+    }
+
+    private void taskPredecessor(Task task, TaskDTO taskDTO)
+    {
+        if(!task.getDependency().isBlank())
+        {
+            String[] dependencies = task.getDependency().split(",");
+            for (String dependency : dependencies)
+            {
+                taskDTO.setPredecessor((dependency));
+            }
+        }
     }
 
     private List<TaskDTO> mapTasksToTaskDTOList(List<Task> tasks) {
@@ -186,9 +212,8 @@ public class ProjectServiceImpl implements ProjectService {
                             .sorted(Comparator.comparingInt(t -> Math.toIntExact(t.getTaskNumber()))).toList();
                     return Math.toIntExact(tasks1.get(0).getTaskNumber() - tasks2.get(0).getTaskNumber());
                 });
-        pageableTasks.forEach(task -> {
-            sectionMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task);
-        });
+        pageableTasks.forEach(task ->
+            sectionMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task));
 
         List<SectionDTO> sectionDTOList = new ArrayList<>();
         sectionMap.forEach((sectionName, tasks) ->

@@ -73,7 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (updateProjectDTO == null) {
             throw RestException.restThrow("NAME_MUST_NOT_BE_NULL");
         } else if (updateProjectDTO.getName().length() <= 1 ||
-                   updateProjectDTO.getName().length() > 255) {
+                updateProjectDTO.getName().length() > 255) {
             throw RestException.restThrow(MessageByLang.getMessage("PROJECT_NAME_LENGTH_ERROR"));
         }
         Project project = projectRepository.findById(updateProjectDTO.getId()).orElseThrow(() -> RestException.restThrow("Project does not exist."));
@@ -97,7 +97,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> RestException.restThrow("Project not found"));
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
 
-        Page<Task> pageableTasks = taskRepository.findByProjectId(id,pageRequest);
+        Page<Task> pageableTasks = taskRepository.findByProjectId(id, pageRequest);
 
         int numberOfPages = project.getTasks().size() / pageRequest.getPageSize() + 1;
         projectDTO.setTotalPages(numberOfPages);
@@ -174,31 +174,28 @@ public class ProjectServiceImpl implements ProjectService {
         return taskDTO;
     }
 
-    private void taskSuccessor(Task task, TaskDTO taskDTO)
-    {
-        if(!taskRepository.getAllByDependencyContaining(String.valueOf(task.getTaskNumber())).isEmpty())
-        {
-            taskDTO.setSuccessor(taskRepository.getAllByDependencyContaining(String.valueOf(task.getTaskNumber()))
-                .stream()
-                .map(Task::getTaskNumber)
-                .collect(Collectors.toList()).toString().replace("[", "").replace("]", ""));
+    private void taskSuccessor(Task task, TaskDTO taskDTO) {
+        String taskNumber = String.valueOf(task.getTaskNumber());
+        List<Task> allByDependencyContaining = taskRepository.getAllByDependencyContaining(taskNumber);
+
+        if (!allByDependencyContaining.isEmpty()) {
+            allByDependencyContaining = allByDependencyContaining.stream()
+                    .filter(t -> Arrays.stream(t.getDependency().split(",")).collect(Collectors.toSet()).contains(taskNumber)).toList();
+
+            taskDTO.setSuccessor(allByDependencyContaining
+                    .stream()
+                    .map(Task::getTaskNumber)
+                    .toList().toString().replace("[", "").replace("]", ""));
         }
     }
 
     private void taskPredecessor(Task task, TaskDTO taskDTO)
     {
-        if(!task.getDependency().isBlank())
-        {
-            String[] dependencies = task.getDependency().split(",");
-            for (String dependency : dependencies)
-            {
-                taskDTO.setPredecessor((dependency));
-            }
-        }
+        taskDTO.setPredecessor(task.getDependency());
     }
 
     private List<TaskDTO> mapTasksToTaskDTOList(List<Task> tasks) {
-        return tasks.stream().map(this::mapTaskToTaskDTO).collect(Collectors.toList());
+        return tasks.stream().map(this::mapTaskToTaskDTO).toList();
     }
 
     private List<SectionDTO> mapTasksToSectionDTO(Page<Task> pageableTasks) {
@@ -213,7 +210,7 @@ public class ProjectServiceImpl implements ProjectService {
                     return Math.toIntExact(tasks1.get(0).getTaskNumber() - tasks2.get(0).getTaskNumber());
                 });
         pageableTasks.forEach(task ->
-            sectionMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task));
+                sectionMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task));
 
         List<SectionDTO> sectionDTOList = new ArrayList<>();
         sectionMap.forEach((sectionName, tasks) ->

@@ -94,7 +94,8 @@ public class CsvParser
                         .setHeader(
                             TASK_NUMBER, SECTION_NAME, TASK_NAME, DESCRIPTION,
                             BEGIN_DATE, END_DATE, ASSIGNEE, DEPENDENCY
-                        ).build()
+                        )
+                            .build()
                 )
                 )
                 {

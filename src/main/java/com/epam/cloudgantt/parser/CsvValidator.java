@@ -39,8 +39,7 @@ public class CsvValidator
             isDependencyValid(task);
         });
         checkSectionNames(tasks);
-        isDependencyExists(tasks);
-        tasks = sortAndGet50(tasks);
+        isDependencyExists(sortAndGet50(tasks));
 
         List<String> emptyColumns = new ArrayList<>();
 
@@ -82,29 +81,25 @@ public class CsvValidator
         Set<Integer> dependencies = new HashSet<>();
         List<Integer> incorrectDeps = new ArrayList<>();
         Set<Long> taskNumbers = tasks.stream().map(Task::getTaskNumber).collect(Collectors.toSet());
-        for (Task task : tasks)
-        {
-            if (!task.getDependency().isBlank())
-            {
+        for (Task task : tasks) {
+            if (!task.getDependency().isBlank()) {
                 dependencies = Arrays.stream(task.getDependency().split(","))
-                    .mapToInt(Integer::parseInt)
-                    .boxed()
-                    .collect(Collectors.toSet());
+                        .mapToInt(Integer::parseInt)
+                        .boxed()
+                        .collect(Collectors.toSet());
             }
-        }
-        for (Integer dependency : dependencies)
-        {
-            if (!taskNumbers.contains(Long.valueOf(dependency)))
-            {
-                incorrectDeps.add(dependency);
+
+            for (Integer dependency : dependencies) {
+                if (!taskNumbers.contains(Long.valueOf(dependency))) {
+                    incorrectDeps.add(dependency);
+                }
             }
-        }
-        if (!incorrectDeps.isEmpty())
-        {
-            throw RestException.restThrow(String.format(
-                MessageByLang.getMessage("CSV_DEPENDENCY_NOT_EXIST"),
-                StringUtils.collectionToDelimitedString(incorrectDeps, ",")
-            ));
+            if (!incorrectDeps.isEmpty()) {
+                throw RestException.restThrow(String.format(
+                        MessageByLang.getMessage("CSV_DEPENDENCY_NOT_EXIST"),
+                        StringUtils.collectionToDelimitedString(incorrectDeps, ",")
+                ));
+            }
         }
     }
 

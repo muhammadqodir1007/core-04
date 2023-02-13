@@ -21,6 +21,10 @@ public class ProjectDTO {
 
     private int totalPages;
 
+    private boolean hasAssignee;
+
+    private boolean hasDate;
+
     public ProjectDTO(UUID id, String name) {
         this.id = id;
         this.name = name;

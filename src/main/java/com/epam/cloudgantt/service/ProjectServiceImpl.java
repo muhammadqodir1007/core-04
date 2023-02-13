@@ -21,6 +21,7 @@ import com.epam.cloudgantt.util.CSVConstants;
 import com.epam.cloudgantt.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -100,10 +101,31 @@ public class ProjectServiceImpl implements ProjectService {
         Page<Task> pageableTasks = taskRepository.findByProjectId(id,pageRequest);
 
         int numberOfPages = project.getTasks().size() / pageRequest.getPageSize() + 1;
+        
         projectDTO.setTotalPages(numberOfPages);
+        projectDTO.setHasAssignee(hasAssignee(project.getTasks()));
+        projectDTO.setHasDate(hasDate(project.getTasks()));
         projectDTO.setSections(mapTasksToSectionDTO(pageableTasks));
 
         return ApiResult.successResponse(projectDTO);
+    }
+
+    private boolean hasDate(List<Task> tasks) {
+        for (Task task : tasks) {
+            if (Objects.nonNull(task.getBeginDate()) || Objects.nonNull(task.getEndDate())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasAssignee(List<Task> tasks) {
+        for (Task task : tasks) {
+            if (!StringUtils.isEmpty(task.getAssignee())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -176,7 +198,20 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private List<SectionDTO> mapTasksToSectionDTO(Page<Task> pageableTasks) {
-        TreeMap<String, List<Task>> sectionMap =
+        TreeMap<String, List<Task>> sectionTreeMap = getSectionTreeMapBySorting(pageableTasks);
+
+        List<SectionDTO> sectionDTOList = new ArrayList<>();
+        sectionTreeMap.forEach((sectionName, tasks) ->
+                sectionDTOList.add(new SectionDTO(
+                        sectionName,
+                        mapTasksToTaskDTOList(tasks)
+                )));
+
+        return sectionDTOList;
+    }
+
+    private static TreeMap<String, List<Task>> getSectionTreeMapBySorting(Page<Task> pageableTasks) {
+        TreeMap<String, List<Task>> sectionTreeMap =
                 new TreeMap<>((s1, s2) -> {
                     List<Task> tasks1 = pageableTasks.stream()
                             .filter(t -> t.getSectionName().equals(s1))
@@ -187,17 +222,9 @@ public class ProjectServiceImpl implements ProjectService {
                     return Math.toIntExact(tasks1.get(0).getTaskNumber() - tasks2.get(0).getTaskNumber());
                 });
         pageableTasks.forEach(task -> {
-            sectionMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task);
+            sectionTreeMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task);
         });
-
-        List<SectionDTO> sectionDTOList = new ArrayList<>();
-        sectionMap.forEach((sectionName, tasks) ->
-                sectionDTOList.add(new SectionDTO(
-                        sectionName,
-                        mapTasksToTaskDTOList(tasks)
-                )));
-
-        return sectionDTOList;
+        return sectionTreeMap;
     }
 
 }

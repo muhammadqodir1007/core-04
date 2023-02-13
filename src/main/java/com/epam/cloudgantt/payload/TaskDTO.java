@@ -28,6 +28,10 @@ public class TaskDTO {
 
     private LocalDateTime endDate;
 
+    private String predecessor;
+
+    private String successor;
+
     private int duration;
 
     private String assignee;

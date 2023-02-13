@@ -20,11 +20,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import static com.epam.cloudgantt.util.CSVConstants.ASSIGNEE;
 import static com.epam.cloudgantt.util.CSVConstants.BEGIN_DATE;
+import static com.epam.cloudgantt.util.CSVConstants.DEPENDENCY;
 import static com.epam.cloudgantt.util.CSVConstants.DESCRIPTION;
 import static com.epam.cloudgantt.util.CSVConstants.END_DATE;
 import static com.epam.cloudgantt.util.CSVConstants.REQUIRED_HEADERS;
@@ -65,7 +67,7 @@ public class CsvParser
                 {
                     throw RestException.restThrow(MessageByLang.getMessage("CSV_REQUIRED_HEADERS_MISSING"));
                 }
-                if (inputHeaders.size() > 7)
+                if (inputHeaders.size() > 8)
                 {
                     errorData.getAlertMessages().add(MessageByLang.getMessage("CSV_ADDITIONAL_COLUMNS_IGNORED"));
                 }
@@ -91,8 +93,9 @@ public class CsvParser
                         .setIgnoreHeaderCase(true)
                         .setHeader(
                             TASK_NUMBER, SECTION_NAME, TASK_NAME, DESCRIPTION,
-                            BEGIN_DATE, END_DATE, ASSIGNEE
-                        ).build()
+                            BEGIN_DATE, END_DATE, ASSIGNEE, DEPENDENCY
+                        )
+                            .build()
                 )
                 )
                 {
@@ -130,6 +133,7 @@ public class CsvParser
 
                         task.setBeginDate(parseDate(csvRecord.get(BEGIN_DATE)));
                         task.setEndDate(parseDate(csvRecord.get(END_DATE)));
+                        task.setDependency(csvRecord.get(DEPENDENCY).replaceAll("\\s+",""));
 
                         listOfTasks.add(task);
                     }
@@ -141,48 +145,21 @@ public class CsvParser
 
     private LocalDateTime parseDate(String date)
     {
+        List<String> formatStrings = Arrays.asList("MM/dd/yyyy", "M/dd/yyyy", "M/d/yyyy", "MM/d/yyyy");
         if (date.isEmpty())
         {
             return null;
-        } else
+        }
+        for (String formatString : formatStrings)
         {
             try
             {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatString);
                 LocalDate localDate = LocalDate.parse(date, formatter);
                 return localDate.atStartOfDay();
             }
-            catch (Exception e1)
-            {
-                try
-                {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/dd/yyyy");
-                    LocalDate localDate = LocalDate.parse(date, formatter);
-                    return localDate.atStartOfDay();
-                }
-                catch (Exception e2)
-                {
-                    try
-                    {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
-                        LocalDate localDate = LocalDate.parse(date, formatter);
-                        return localDate.atStartOfDay();
-                    }
-                    catch (Exception e3)
-                    {
-                        try
-                        {
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/d/yyyy");
-                            LocalDate localDate = LocalDate.parse(date, formatter);
-                            return localDate.atStartOfDay();
-                        }
-                        catch (Exception e4)
-                        {
-                            throw RestException.restThrow(MessageByLang.getMessage("CSV_WRONG_DATE_FORMAT"));
-                        }
-                    }
-                }
-            }
+            catch (Exception ignored){}
         }
+        throw RestException.restThrow(MessageByLang.getMessage("CSV_WRONG_DATE_FORMAT"));
     }
 }

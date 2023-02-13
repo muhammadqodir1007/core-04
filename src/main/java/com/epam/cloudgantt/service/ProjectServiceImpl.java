@@ -118,7 +118,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return false;
     }
-
     private boolean hasAssignee(List<Task> tasks) {
         for (Task task : tasks) {
             if (!StringUtils.isEmpty(task.getAssignee())) {

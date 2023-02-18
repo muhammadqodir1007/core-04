@@ -8,19 +8,12 @@ import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.parser.CsvParser;
 import com.epam.cloudgantt.parser.CsvValidator;
-import com.epam.cloudgantt.payload.ApiResult;
-import com.epam.cloudgantt.payload.CreateProjectDTO;
-import com.epam.cloudgantt.payload.ProjectDTO;
-import com.epam.cloudgantt.payload.ProjectResponseDTO;
-import com.epam.cloudgantt.payload.SectionDTO;
-import com.epam.cloudgantt.payload.TaskDTO;
-import com.epam.cloudgantt.payload.UpdateProjectDTO;
+import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.repository.ProjectRepository;
 import com.epam.cloudgantt.repository.TaskRepository;
 import com.epam.cloudgantt.util.CSVConstants;
 import com.epam.cloudgantt.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,8 +40,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ApiResult<?> delete(UUID id, User user) {
         Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project does not exist."));
 
-        if (!Objects.equals(project.getUser(), user))
-            throw RestException.restThrow("You are not allowed to rename.");
+        if (!Objects.equals(project.getUser(), user)) throw RestException.restThrow("You are not allowed to rename.");
 
         projectRepository.deleteById(id);
         return ApiResult.successResponse("Project was successfully deleted.");
@@ -57,8 +49,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ApiResult<ProjectResponseDTO> createNewProject(CreateProjectDTO createProjectDTO, User user) {
 
-        if (Objects.isNull(createProjectDTO))
-            throw RestException.restThrow("NAME_MUST_NOT_BE_NULL");
+        if (Objects.isNull(createProjectDTO)) throw RestException.restThrow("NAME_MUST_NOT_BE_NULL");
 
         Project project = new Project();
         project.setName(createProjectDTO.getName());
@@ -73,8 +64,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ApiResult<ProjectResponseDTO> updateProjectName(UpdateProjectDTO updateProjectDTO, User user) {
         if (updateProjectDTO == null) {
             throw RestException.restThrow("NAME_MUST_NOT_BE_NULL");
-        } else if (updateProjectDTO.getName().length() <= 1 ||
-                updateProjectDTO.getName().length() > 255) {
+        } else if (updateProjectDTO.getName().length() < 1 || updateProjectDTO.getName().length() > 255) {
             throw RestException.restThrow(MessageByLang.getMessage("PROJECT_NAME_LENGTH_ERROR"));
         }
         Project project = projectRepository.findById(updateProjectDTO.getId()).orElseThrow(() -> RestException.restThrow("Project does not exist."));
@@ -94,8 +84,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ApiResult<ProjectDTO> myProjectById(UUID id, User user, PageRequest pageRequest) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> RestException.restThrow("Project not found"));
+        Project project = projectRepository.findById(id).orElseThrow(() -> RestException.restThrow("Project not found"));
         ProjectDTO projectDTO = mapProjectToProjectDTO(project);
 
         Page<Task> pageableTasks = taskRepository.findByProjectId(id, pageRequest);
@@ -117,6 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return false;
     }
+
     private boolean hasAssignee(List<Task> tasks) {
         for (Task task : tasks) {
             if (!StringUtils.isEmpty(task.getAssignee())) {
@@ -163,12 +153,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         projectRepository.save(project);
 
-        return ApiResult.successResponse(
-                new ProjectResponseDTO(
-                        project.getId(),
-                        errorData.getAlertMessages()
-                ),
-                MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED"));
+        return ApiResult.successResponse(new ProjectResponseDTO(project.getId(), errorData.getAlertMessages()), MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED"));
     }
 
     private TaskDTO mapTaskToTaskDTO(Task task) {
@@ -186,7 +171,9 @@ public class ProjectServiceImpl implements ProjectService {
         taskSuccessor(task, taskDTO);
 
         int duration = 0;
-        if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate()))
+        if ((Objects.isNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate())) || (Objects.isNull(task.getBeginDate()) && Objects.nonNull(task.getEndDate())))
+            duration = 1;
+        else if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate()))
             duration = CommonUtils.getDiffTwoDateInDays(task.getBeginDate(), task.getEndDate()) + 1;
 
         taskDTO.setDuration(duration);
@@ -198,18 +185,13 @@ public class ProjectServiceImpl implements ProjectService {
         List<Task> allByDependencyContaining = taskRepository.getAllByDependencyContaining(taskNumber);
 
         if (!allByDependencyContaining.isEmpty()) {
-            allByDependencyContaining = allByDependencyContaining.stream()
-                    .filter(t -> Arrays.stream(t.getDependency().split(",")).collect(Collectors.toSet()).contains(taskNumber)).toList();
+            allByDependencyContaining = allByDependencyContaining.stream().filter(t -> Arrays.stream(t.getDependency().split(",")).collect(Collectors.toSet()).contains(taskNumber)).toList();
 
-            taskDTO.setSuccessor(allByDependencyContaining
-                    .stream()
-                    .map(Task::getTaskNumber)
-                    .toList().toString().replace("[", "").replace("]", ""));
+            taskDTO.setSuccessor(allByDependencyContaining.stream().map(Task::getTaskNumber).toList().toString().replace("[", "").replace("]", ""));
         }
     }
 
-    private void taskPredecessor(Task task, TaskDTO taskDTO)
-    {
+    private void taskPredecessor(Task task, TaskDTO taskDTO) {
         taskDTO.setPredecessor(task.getDependency());
     }
 
@@ -218,25 +200,15 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private List<SectionDTO> mapTasksToSectionDTO(Page<Task> pageableTasks) {
-        TreeMap<String, List<Task>> sectionMap =
-                new TreeMap<>((s1, s2) -> {
-                    List<Task> tasks1 = pageableTasks.stream()
-                            .filter(t -> t.getSectionName().equals(s1))
-                            .sorted(Comparator.comparingInt(t -> Math.toIntExact(t.getTaskNumber()))).toList();
-                    List<Task> tasks2 = pageableTasks.stream()
-                            .filter(t -> t.getSectionName().equals(s2))
-                            .sorted(Comparator.comparingInt(t -> Math.toIntExact(t.getTaskNumber()))).toList();
-                    return Math.toIntExact(tasks1.get(0).getTaskNumber() - tasks2.get(0).getTaskNumber());
-                });
-        pageableTasks.forEach(task ->
-                sectionMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task));
+        TreeMap<String, List<Task>> sectionMap = new TreeMap<>((s1, s2) -> {
+            List<Task> tasks1 = pageableTasks.stream().filter(t -> t.getSectionName().equals(s1)).sorted(Comparator.comparingInt(t -> Math.toIntExact(t.getTaskNumber()))).toList();
+            List<Task> tasks2 = pageableTasks.stream().filter(t -> t.getSectionName().equals(s2)).sorted(Comparator.comparingInt(t -> Math.toIntExact(t.getTaskNumber()))).toList();
+            return Math.toIntExact(tasks1.get(0).getTaskNumber() - tasks2.get(0).getTaskNumber());
+        });
+        pageableTasks.forEach(task -> sectionMap.computeIfAbsent(task.getSectionName(), k -> new ArrayList<>()).add(task));
 
         List<SectionDTO> sectionDTOList = new ArrayList<>();
-        sectionMap.forEach((sectionName, tasks) ->
-                sectionDTOList.add(new SectionDTO(
-                        sectionName,
-                        mapTasksToTaskDTOList(tasks)
-                )));
+        sectionMap.forEach((sectionName, tasks) -> sectionDTOList.add(new SectionDTO(sectionName, mapTasksToTaskDTOList(tasks))));
 
         return sectionDTOList;
     }

@@ -185,9 +185,12 @@ public class ProjectServiceImpl implements ProjectService {
         taskPredecessor(task, taskDTO);
         taskSuccessor(task, taskDTO);
 
-        int duration = 0;
-        if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate()))
+        int duration = 1;
+        if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate())) {
             duration = CommonUtils.getDiffTwoDateInDays(task.getBeginDate(), task.getEndDate()) + 1;
+        } else if (task.getBeginDate() == null && task.getEndDate() == null) {
+            duration = 0;
+        }
 
         taskDTO.setDuration(duration);
         return taskDTO;

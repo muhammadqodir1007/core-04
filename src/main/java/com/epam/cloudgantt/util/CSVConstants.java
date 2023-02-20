@@ -23,9 +23,12 @@ public interface CSVConstants
 
     String DEPENDENCY = "dependency";
 
-    Set<String> REQUIRED_HEADERS = new HashSet<>(List.of(TASK_NUMBER, TASK_NAME,
+    Set<String> ALL_HEADERS = new HashSet<>(List.of(TASK_NUMBER, TASK_NAME,
         SECTION_NAME, DESCRIPTION,
         BEGIN_DATE, END_DATE, ASSIGNEE, DEPENDENCY
+    ));
+
+    Set<String> REQUIRED_HEADERS = new HashSet<>(List.of(TASK_NUMBER, TASK_NAME
     ));
 
     long MAX_FILE_SIZE = 5 * 1024 * 1024;

@@ -21,6 +21,7 @@ import com.epam.cloudgantt.util.CSVConstants;
 import com.epam.cloudgantt.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -101,11 +102,29 @@ public class ProjectServiceImpl implements ProjectService {
 
         int numberOfPages = project.getTasks().size() / pageRequest.getPageSize() + 1;
         projectDTO.setTotalPages(numberOfPages);
+        projectDTO.setHasAssignee(hasAssignee(project.getTasks()));
+        projectDTO.setHasDate(hasDate(project.getTasks()));
         projectDTO.setSections(mapTasksToSectionDTO(pageableTasks));
 
         return ApiResult.successResponse(projectDTO);
     }
 
+    private boolean hasDate(List<Task> tasks) {
+        for (Task task : tasks) {
+            if (Objects.nonNull(task.getBeginDate()) || Objects.nonNull(task.getEndDate())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean hasAssignee(List<Task> tasks) {
+        for (Task task : tasks) {
+            if (!StringUtils.isEmpty(task.getAssignee())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private ProjectDTO mapProjectToProjectDTO(Project project) {
         return new ProjectDTO(project.getId(), project.getName());
@@ -166,9 +185,12 @@ public class ProjectServiceImpl implements ProjectService {
         taskPredecessor(task, taskDTO);
         taskSuccessor(task, taskDTO);
 
-        int duration = 0;
-        if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate()))
+        int duration = 1;
+        if (Objects.nonNull(task.getEndDate()) && Objects.nonNull(task.getBeginDate())) {
             duration = CommonUtils.getDiffTwoDateInDays(task.getBeginDate(), task.getEndDate()) + 1;
+        } else if (task.getBeginDate() == null && task.getEndDate() == null) {
+            duration = 0;
+        }
 
         taskDTO.setDuration(duration);
         return taskDTO;

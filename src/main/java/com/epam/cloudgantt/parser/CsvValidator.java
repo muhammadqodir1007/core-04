@@ -63,11 +63,12 @@ public class CsvValidator
         {
             emptyColumns.add("Description");
         }
+        try{
         if (tasks.stream()
             .allMatch(task -> task.getAssignee().isEmpty()))
         {
             emptyColumns.add("Assignee");
-        }
+        }}catch (Exception e){emptyColumns.add("Assignee");}
         if (!emptyColumns.isEmpty())
         {
             String missingColumnsMessage = "Missing columns are : " + String.join(",", emptyColumns);
@@ -81,23 +82,28 @@ public class CsvValidator
         Set<Integer> dependencies = new HashSet<>();
         List<Integer> incorrectDeps = new ArrayList<>();
         Set<Long> taskNumbers = tasks.stream().map(Task::getTaskNumber).collect(Collectors.toSet());
-        for (Task task : tasks) {
-            if (!task.getDependency().isBlank()) {
+        for (Task task : tasks)
+        {
+            if (!task.getDependency().isBlank())
+            {
                 dependencies = Arrays.stream(task.getDependency().split(","))
-                        .mapToInt(Integer::parseInt)
-                        .boxed()
-                        .collect(Collectors.toSet());
+                    .mapToInt(Integer::parseInt)
+                    .boxed()
+                    .collect(Collectors.toSet());
             }
 
-            for (Integer dependency : dependencies) {
-                if (!taskNumbers.contains(Long.valueOf(dependency))) {
+            for (Integer dependency : dependencies)
+            {
+                if (!taskNumbers.contains(Long.valueOf(dependency)))
+                {
                     incorrectDeps.add(dependency);
                 }
             }
-            if (!incorrectDeps.isEmpty()) {
+            if (!incorrectDeps.isEmpty())
+            {
                 throw RestException.restThrow(String.format(
-                        MessageByLang.getMessage("CSV_DEPENDENCY_NOT_EXIST"),
-                        StringUtils.collectionToDelimitedString(incorrectDeps, ",")
+                    MessageByLang.getMessage("CSV_DEPENDENCY_NOT_EXIST"),
+                    StringUtils.collectionToDelimitedString(incorrectDeps, ",")
                 ));
             }
         }
@@ -117,8 +123,10 @@ public class CsvValidator
             }
             catch (Exception e)
             {
-                throw RestException.restThrow(String.format(MessageByLang.getMessage("CSV_DEPENDS_ON_NOT_NUMBER"),
-                    task.getTaskNumber()));
+                throw RestException.restThrow(String.format(
+                    MessageByLang.getMessage("CSV_DEPENDS_ON_NOT_NUMBER"),
+                    task.getTaskNumber()
+                ));
             }
             task.setDependency(StringUtils.collectionToDelimitedString(dependencies, ","));
             for (Integer dependency : dependencies)
@@ -148,7 +156,11 @@ public class CsvValidator
     {
         String s = "The text field was cut to 255 symbols as it exceeded its maximum length";
         String taskName = task.getTaskName();
-        String assignee = task.getAssignee();
+        String assignee = "";
+        try
+        {
+            assignee = task.getAssignee();
+        }catch (Exception ignored){}
         String description = task.getDescription();
         String sectionName = task.getSectionName();
         if (taskName.length() > 255)
@@ -156,19 +168,20 @@ public class CsvValidator
             task.setTaskName(taskName.substring(0, 255));
             checkIfExists(s);
         }
+        try{
         if (assignee.length() > 255)
         {
-            task.setTaskName(taskName.substring(0, 255));
+            task.setAssignee(assignee.substring(0, 255));
             checkIfExists(s);
-        }
+        }}catch (Exception ignored){}
         if (description.length() > 255)
         {
-            task.setTaskName(taskName.substring(0, 255));
+            task.setDescription(description.substring(0, 255));
             checkIfExists(s);
         }
         if (sectionName.length() > 255)
         {
-            task.setTaskName(taskName.substring(0, 255));
+            task.setSectionName(taskName.substring(0, 255));
             checkIfExists(s);
         }
     }
@@ -197,7 +210,6 @@ public class CsvValidator
         return tasks.stream().limit(Math.min(tasks.size(), 50)).toList();
     }
 
-    @SneakyThrows
     public static void checkSectionNames(List<Task> tasks)
     {
         var blankTextCount = 0;

@@ -74,7 +74,19 @@ public class ProjectServiceImpl implements ProjectService {
         if (Objects.isNull(updateProjectDTO)) {
             throw RestException.restThrow("NAME_MUST_NOT_BE_NULL");
         }
-        String inputNameAfterIgnoringSpaces = updateProjectDTO.getName().replaceAll("\\s", "");
+        String input = updateProjectDTO.getName();
+        int lastIndex = input.length() - 1;
+        while (lastIndex >= 0 && Character.isWhitespace(input.charAt(lastIndex))) {
+            lastIndex--;
+        }
+
+        int firstIndex = 0;
+        while (firstIndex < input.length() && Character.isWhitespace(input.charAt(firstIndex))) {
+            firstIndex++;
+        }
+
+        String inputNameAfterIgnoringSpaces = input.substring(firstIndex, lastIndex + 1);
+
         if (inputNameAfterIgnoringSpaces.length() < 3 ||
                 inputNameAfterIgnoringSpaces.length() > 255) {
             throw RestException.restThrow(MessageByLang.getMessage("PROJECT_NAME_LENGTH_ERROR"));
@@ -83,7 +95,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         if (!project.getUser().equals(user)) throw RestException.restThrow("You are not allowed to rename.");
 
-        project.setName(updateProjectDTO.getName());
+        project.setName(inputNameAfterIgnoringSpaces);
         projectRepository.save(project);
         return ApiResult.successResponse("Project_Name was successfully edited.");
     }

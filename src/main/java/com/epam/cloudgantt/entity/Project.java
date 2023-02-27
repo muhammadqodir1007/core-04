@@ -30,6 +30,4 @@ public class Project extends AbsUUIDEntity {
             cascade = CascadeType.ALL)
     @OrderBy(value = "sectionName,taskNumber")
     private List<Task> tasks;
-
-
 }

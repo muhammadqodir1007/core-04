@@ -4,6 +4,7 @@ import com.epam.cloudgantt.config.MessageByLang;
 import com.epam.cloudgantt.entity.Project;
 import com.epam.cloudgantt.entity.Task;
 import com.epam.cloudgantt.entity.User;
+import com.epam.cloudgantt.exceptions.AlertData;
 import com.epam.cloudgantt.exceptions.ErrorData;
 import com.epam.cloudgantt.exceptions.RestException;
 import com.epam.cloudgantt.parser.CsvParser;
@@ -131,6 +132,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return false;
     }
+
     private boolean hasAssignee(List<Task> tasks) {
         for (Task task : tasks) {
             if (!StringUtils.isEmpty(task.getAssignee())) {
@@ -150,18 +152,25 @@ public class ProjectServiceImpl implements ProjectService {
             throw RestException.restThrow(MessageByLang.getMessage("CSV_FILE_SIZE_EXCEEDS_5MB"));
 
         List<Task> tasks;
-        ErrorData errorData = new ErrorData(new ArrayList<>());
+        AlertData alertData = new AlertData(new ArrayList<>());
+        ErrorData errorData = new ErrorData((new ArrayList<>()));
 
         try {
+            csvParser.setAlertData(alertData);
             csvParser.setErrorData(errorData);
+            csvValidator.setErrorData(errorData);
             tasks = csvParser.parseCsvFile(file.getInputStream());
         } catch (IOException e) {
             throw RestException.restThrow(e.getMessage());
         }
 
-        csvValidator.setErrorData(errorData);
+        csvValidator.setAlertData(alertData);
         tasks = csvValidator.validateAll(tasks);
-
+        if (tasks.isEmpty()) {
+            ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
+            projectResponseDTO.setMessage(errorData.getErrorMessages());
+            return ApiResult.errorResponseWithData(projectResponseDTO);
+        }
         Project project = new Project();
         project.setTasks(tasks);
 
@@ -180,7 +189,7 @@ public class ProjectServiceImpl implements ProjectService {
         return ApiResult.successResponse(
                 new ProjectResponseDTO(
                         project.getId(),
-                        errorData.getAlertMessages()
+                        alertData.getAlertMessages()
                 ),
                 MessageByLang.getMessage("CSV_PROJECT_SUCCESSFULLY_UPLOADED"));
     }
@@ -225,8 +234,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
-    private void taskPredecessor(Task task, TaskDTO taskDTO)
-    {
+    private void taskPredecessor(Task task, TaskDTO taskDTO) {
         taskDTO.setPredecessor(task.getDependency());
     }
 

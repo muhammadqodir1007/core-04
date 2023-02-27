@@ -10,9 +10,15 @@ import java.util.List;
 @Getter
 @Setter
 public class ErrorData extends RuntimeException {
-    private final List<String> alertMessages;
+    private final List<String> errorMessages;
 
     public ErrorData(List<String> alertMessages) {
-        this.alertMessages = alertMessages;
+        this.errorMessages = alertMessages;
+    }
+
+    public void addError(String errorMessage) {
+        if (!errorMessages.contains(errorMessage)) {
+            errorMessages.add(errorMessage);
+        }
     }
 }

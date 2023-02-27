@@ -1,7 +1,7 @@
 package com.epam.cloudgantt.controller;
 
 import com.epam.cloudgantt.entity.User;
-import com.epam.cloudgantt.exceptions.ErrorData;
+import com.epam.cloudgantt.exceptions.AlertData;
 import com.epam.cloudgantt.payload.*;
 import com.epam.cloudgantt.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +17,9 @@ import java.util.UUID;
 @Slf4j
 public class ProjectControllerImpl implements ProjectController {
     private final ProjectService projectService;
-    private final com.epam.cloudgantt.exceptions.ErrorData errorData;
 
-    public ProjectControllerImpl(ProjectService projectService, ErrorData errorData) {
+    public ProjectControllerImpl(ProjectService projectService, AlertData alertData) {
         this.projectService = projectService;
-        this.errorData = errorData;
     }
 
     @Override
@@ -49,7 +47,7 @@ public class ProjectControllerImpl implements ProjectController {
                                                User user,
                                                int page,
                                                int size) throws ParseException {
-        PageRequest pageRequest = PageRequest.of(page-1, size);
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
         return projectService.myProjectById(id, user, pageRequest);
     }
 

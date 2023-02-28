@@ -2,8 +2,8 @@ package com.epam.cloudgantt.parser;
 
 import com.epam.cloudgantt.config.MessageByLang;
 import com.epam.cloudgantt.entity.Task;
+import com.epam.cloudgantt.exceptions.AlertData;
 import com.epam.cloudgantt.exceptions.ErrorData;
-import com.epam.cloudgantt.exceptions.RestException;
 import lombok.Setter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -39,21 +39,18 @@ import static com.epam.cloudgantt.util.CSVConstants.TASK_NUMBER;
 
 @Setter
 @Component
-public class CsvParser
-{
+public class CsvParser {
 
     private ErrorData errorData;
+    private AlertData alertData;
 
-    public CsvParser(ErrorData errorData)
-    {
+    public CsvParser(ErrorData errorData) {
         this.errorData = errorData;
     }
 
     public List<Task> parseCsvFile(InputStream inputStream)
-        throws IOException
-    {
-        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)))
-        {
+            throws IOException {
+        try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             {
                 StringBuilder stringBuilder = new StringBuilder();
                 String headerLine = fileReader.readLine();
@@ -62,24 +59,20 @@ public class CsvParser
                 Set<String> currentHeaders = Arrays.stream(headers).collect(Collectors.toSet());
 
                 String line;
-                while ((line = fileReader.readLine()) != null)
-                {
+                while ((line = fileReader.readLine()) != null) {
                     stringBuilder.append(line).append("\n");
                 }
                 Set<String> inputHeaders = Set.of(headers);
-                if (!inputHeaders.containsAll(REQUIRED_HEADERS))
-                {
-                    throw RestException.restThrow(MessageByLang.getMessage("CSV_REQUIRED_HEADERS_MISSING"));
+                if (!inputHeaders.containsAll(REQUIRED_HEADERS)) {
+                    errorData.addError(MessageByLang.getMessage("CSV_REQUIRED_HEADERS_MISSING"));
                 }
-                if (!ALL_HEADERS.containsAll(currentHeaders))
-                {
-                    errorData.getAlertMessages().add(MessageByLang.getMessage("CSV_ADDITIONAL_COLUMNS_IGNORED"));
+                if (!ALL_HEADERS.containsAll(currentHeaders)) {
+                    alertData.getAlertMessages().add(MessageByLang.getMessage("CSV_ADDITIONAL_COLUMNS_IGNORED"));
                 }
 
-                boolean blank = stringBuilder.toString().replaceAll(",", "").isBlank();//check
+                boolean blank = stringBuilder.toString().replaceAll(",", "").isBlank();
 
-                if (blank)
-                {
+                if (blank) {
                     return new ArrayList<>();
                 }
 
@@ -88,56 +81,49 @@ public class CsvParser
                 List<Task> listOfTasks = new ArrayList<>();
 
                 try (CSVParser csvParser = new CSVParser(
-                    bufferedReader,
-                    CSVFormat.Builder.create().setDelimiter(",")
-                        .setSkipHeaderRecord(true)
-                        .setTrim(true)
-                        .setIgnoreEmptyLines(true)
-                        .setQuote('"')
-                        .setIgnoreHeaderCase(true)
-                        .setAllowMissingColumnNames(true)
-                        .setHeader(headers)
-                        .build()
+                        bufferedReader,
+                        CSVFormat.Builder.create().setDelimiter(",")
+                                .setSkipHeaderRecord(true)
+                                .setTrim(true)
+                                .setIgnoreEmptyLines(true)
+                                .setQuote('"')
+                                .setIgnoreHeaderCase(true)
+                                .setAllowMissingColumnNames(true)
+                                .setHeader(headers)
+                                .build()
                 )
-                )
-                {
+                ) {
                     Iterable<CSVRecord> csvRecords = csvParser.getRecords();
-                    for (CSVRecord csvRecord : csvRecords)
-                    {
+                    for (CSVRecord csvRecord : csvRecords) {
                         Task task = new Task();
-                        try
-                        {
+                        try {
                             task.setAssignee(csvRecord.get(ASSIGNEE));
-                        }
-                        catch (Exception ignored)
-                        {
+                        } catch (Exception ignored) {
                         }
                         task.setDescription(csvRecord.get(DESCRIPTION).contains(",") ? "" : csvRecord.get(DESCRIPTION));
-                        try
-                        {
+                        String csvTaskNumberOrTaskNameMissing = MessageByLang.getMessage(
+                                "CSV_TASK_NUMBER_OR_TASK_NAME_MISSING");
+                        try {
                             task.setTaskNumber(Long.valueOf(csvRecord.get(TASK_NUMBER).contains(",")
-                                ? ""
-                                : csvRecord.get(TASK_NUMBER)));
-                        }
-                        catch (Exception e)
-                        {
-                            throw RestException.restThrow(MessageByLang.getMessage(
-                                "CSV_TASK_NUMBER_OR_TASK_NAME_MISSING"));
+                                    ? ""
+                                    : csvRecord.get(TASK_NUMBER)));
+                        } catch (Exception e) {
+                            if (!errorData.getErrorMessages().contains(csvTaskNumberOrTaskNameMissing)) {
+                                errorData.addError(csvTaskNumberOrTaskNameMissing);
+                            }
                         }
 
                         String taskName = csvRecord.get(TASK_NAME);
 
-                        if (taskName.isBlank())
-                        {
-                            throw RestException.restThrow(MessageByLang.getMessage(
-                                "CSV_TASK_NUMBER_OR_TASK_NAME_MISSING"));
+                        if (taskName.isBlank() && !errorData.getErrorMessages().contains(csvTaskNumberOrTaskNameMissing)) {
+                            errorData.addError(csvTaskNumberOrTaskNameMissing);
                         }
 
                         task.setTaskName(taskName.contains(",") ? "" : taskName);
 
                         task.setSectionName(csvRecord.get(SECTION_NAME).contains(",")
-                            ? ""
-                            : csvRecord.get(SECTION_NAME));
+                                ? ""
+                                : csvRecord.get(SECTION_NAME));
 
                         task.setBeginDate(parseDate(csvRecord.get(BEGIN_DATE)));
                         task.setEndDate(parseDate(csvRecord.get(END_DATE)));
@@ -151,16 +137,12 @@ public class CsvParser
         }
     }
 
-    private LocalDateTime parseDate(String date)
-    {
-        if (date.isEmpty())
-        {
+    private LocalDateTime parseDate(String date) {
+        if (date.isEmpty()) {
             return null;
         }
-        for (String formatString : DATE_FORMATS)
-        {
-            try
-            {
+        for (String formatString : DATE_FORMATS) {
+            try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatString);
                 LocalDate localDate = LocalDate.parse(date, formatter);
                 return localDate.atStartOfDay();
@@ -171,6 +153,5 @@ public class CsvParser
             errorData.addError(MessageByLang.getMessage("CSV_WRONG_DATE_FORMAT"));
         }
         return null;
-
     }
 }

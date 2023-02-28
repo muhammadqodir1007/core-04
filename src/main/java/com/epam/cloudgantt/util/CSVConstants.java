@@ -1,5 +1,6 @@
 package com.epam.cloudgantt.util;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,20 @@ public interface CSVConstants
 
     Set<String> REQUIRED_HEADERS = new HashSet<>(List.of(TASK_NUMBER, TASK_NAME
     ));
+
+    List<String> DATE_FORMATS = Arrays.asList(
+        "MM/dd/yyyy",
+        "M/dd/yyyy",
+        "M/d/yyyy",
+        "MM/d/yyyy",
+        "yyyy-MM-dd",
+        "yyyy-M-dd",
+        "yyyy-MM-d",
+        "yyyy-M-d",
+        "MM/DD/YYYY",
+        "M/DD/YYYY",
+        "MM/D/YYYY",
+        "M/D/YYYY");
 
     long MAX_FILE_SIZE = 5 * 1024 * 1024;
 }

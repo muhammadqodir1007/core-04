@@ -102,7 +102,7 @@ public class CsvValidator {
             String dependency = task.getDependency();
             String[] split = dependency.split(",");
             Set<Long> dependencies = new HashSet<>();
-            for (String dep : split) {//1//6,#,%,1
+            for (String dep : split) {
                 if (NumberUtils.isParsable(dep)) {
                     dependencies.add(Long.parseLong(dep));
                 } else {
@@ -189,10 +189,15 @@ public class CsvValidator {
     }
 
     public void checkUniqueID(List<Task> tasks) {
-        Set<Long> idsOfTasks = tasks.stream().map(Task::getTaskNumber)
-                .collect(Collectors.toSet());
+        List<Task> nonNullNumberTasks = tasks.stream()
+                                             .filter(task -> task.getTaskNumber() != null)
+                                             .toList();
+        Set<Long> idsOfTasks = tasks.stream()
+                                    .map(Task::getTaskNumber)
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toSet());
 
-        if (idsOfTasks.size() != tasks.size()) {
+        if (idsOfTasks.size() != nonNullNumberTasks.size()) {
             errorData.addError(MessageByLang.getMessage("CSV_NOT_UNIQUE_ID"));
         }
     }

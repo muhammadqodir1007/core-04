@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import static com.epam.cloudgantt.util.CSVConstants.ALL_HEADERS;
 import static com.epam.cloudgantt.util.CSVConstants.ASSIGNEE;
 import static com.epam.cloudgantt.util.CSVConstants.BEGIN_DATE;
+import static com.epam.cloudgantt.util.CSVConstants.DATE_FORMATS;
 import static com.epam.cloudgantt.util.CSVConstants.DEPENDENCY;
 import static com.epam.cloudgantt.util.CSVConstants.DESCRIPTION;
 import static com.epam.cloudgantt.util.CSVConstants.END_DATE;
@@ -152,12 +153,11 @@ public class CsvParser
 
     private LocalDateTime parseDate(String date)
     {
-        List<String> formatStrings = Arrays.asList("MM/dd/yyyy", "M/dd/yyyy", "M/d/yyyy", "MM/d/yyyy");
         if (date.isEmpty())
         {
             return null;
         }
-        for (String formatString : formatStrings)
+        for (String formatString : DATE_FORMATS)
         {
             try
             {

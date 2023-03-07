@@ -1,8 +1,10 @@
 package com.epam.cloudgantt.service;
+
 import com.epam.cloudgantt.entity.CsvTemplate;
 import com.epam.cloudgantt.repository.CsvTemplateRepository;
 import com.opencsv.CSVWriter;
 import org.springframework.stereotype.Service;
+
 import java.io.Writer;
 import java.util.List;
 
@@ -20,8 +22,10 @@ public class CsvTemplateServiceImpl implements CsvTemplateService {
         System.out.println(csvTemplateRepository.findAll());
         List<CsvTemplate> all = csvTemplateRepository.findAll();
         List<String> list = all.stream().map(CsvTemplate::getNameOfColumn).toList();
+        List<String> listOfExample = all.stream().map(CsvTemplate::getExample).toList();
         CSVWriter csvWriter = new CSVWriter(writer);
         csvWriter.writeNext(list.toArray(new String[0]));
+        csvWriter.writeNext(listOfExample.toArray(new String[0]));
     }
 
 

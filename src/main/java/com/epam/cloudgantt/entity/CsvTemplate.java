@@ -14,4 +14,5 @@ import lombok.Setter;
 public class CsvTemplate extends AbsIntegerEntity {
     @Column(nullable = false, unique = true)
     String nameOfColumn;
+    String example;
 }

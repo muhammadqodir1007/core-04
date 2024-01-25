@@ -34,8 +34,8 @@ public class User extends AbsUUIDEntity implements UserDetails {
 
     private boolean credentialsNonExpired = true;
 
-    @OneToOne(mappedBy = "user")
-    private Project project;
+//    @OneToOne(mappedBy = "user")
+//    private Project project;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

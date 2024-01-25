@@ -23,8 +23,6 @@ public class CloudGanttExceptionHandler {
         return null;
 
     }
-
-
     @ExceptionHandler(value = RestException.class)
     public ResponseEntity<ApiResult<ErrorData>> handleException(RestException ex) {
         ex.printStackTrace();

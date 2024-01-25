@@ -3,12 +3,12 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/cloud_gantt
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: postgrespassword
+    password: 1007
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   liquibase:
     change-log: classpath:db/master.yaml
@@ -16,17 +16,21 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: cloudgantt77@gmail.com
-    password: eketcrixnjrpvzwn
+
+    username: DoctorS.Med.Fazo@gmail.com
+    password: taub optv rywl bgol
+
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
-    iPAndPort: http://localhost:3000/
-    conformEmailForSignUpURL: confirm-email/
+    iPAndPort: http://localhost:8081/
+    conformEmailForSignUpURL: api/v1/auth/confirm-email/
     conformEmailForResetForgottenPasswordURL: change-password/
+    protocol: smtp
+
 
 app:
   jwt:

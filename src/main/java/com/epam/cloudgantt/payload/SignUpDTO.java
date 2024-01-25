@@ -1,15 +1,10 @@
 package com.epam.cloudgantt.payload;
 
-import com.epam.cloudgantt.util.AppConstants;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.regex.Matcher;
 
 @Getter
 @AllArgsConstructor
@@ -28,6 +23,7 @@ public class SignUpDTO {
     @NotBlank(message = "{PASSWORD_MUST_BE_NOT_NULL}")
 //    @Pattern(message = "{PASSWORD_REGEX_MSG}", regexp = AppConstants.PASSWORD_REGEX)
     private String prePassword;
+
 
     @Override
     public String toString() {

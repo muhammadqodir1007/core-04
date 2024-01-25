@@ -11,7 +11,6 @@ import java.util.List;
 @Setter
 public class AlertData extends RuntimeException {
     private final List<String> alertMessages;
-
     public AlertData(List<String> alertMessages) {
         this.alertMessages = alertMessages;
     }

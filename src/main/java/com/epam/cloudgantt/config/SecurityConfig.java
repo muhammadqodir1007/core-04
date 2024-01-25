@@ -1,6 +1,4 @@
 package com.epam.cloudgantt.config;
-
-import com.epam.cloudgantt.controller.AuthController;
 import com.epam.cloudgantt.security.JWTAuthProvider;
 import com.epam.cloudgantt.security.JWTFilter;
 import com.epam.cloudgantt.util.AppConstants;

@@ -18,8 +18,8 @@ public class MailServiceImpl implements MailService {
     private final JavaMailSender mailSender;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(MailServiceImpl.class);
-    @Value("${spring.mail.username}")
-    String sender;
+//    @Value("${spring.mail.username}")
+    String sender="DoctorS.Med.Fazo@gmail.com";
 
     public MailServiceImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -43,7 +43,7 @@ public class MailServiceImpl implements MailService {
         try {
             LOGGER.info(link);
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, " charset=utf-8");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
             helper.setTo(to);
             helper.setSubject(MessageByLang.getMessage("SUBJECT_FOR_EMAIL_VERIFICATION"));
             helper.setFrom(sender);
